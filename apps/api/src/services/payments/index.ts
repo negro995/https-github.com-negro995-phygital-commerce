@@ -48,6 +48,7 @@ export function createPaymentRegistry(config: AppConfig, chain: ChainService): P
       ? new MercadoPagoPaymentProvider(config.MERCADOPAGO_ACCESS_TOKEN, {
           currency: config.MERCADOPAGO_CURRENCY,
           fxRate: config.MERCADOPAGO_FX_RATE,
+          prefillPayer: config.MERCADOPAGO_PREFILL_PAYER,
           notificationUrl: `${config.API_PUBLIC_URL}/api/webhooks/mercadopago`,
         })
       : undefined,

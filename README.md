@@ -190,17 +190,18 @@ ENABLE_MOCK_PAYMENTS=true
 2. Forward webhooks locally with the Stripe CLI and copy the signing secret it prints:
 
    ```bash
-   stripe listen --forward-to localhost:4000/webhooks/stripe
+   stripe listen --forward-to localhost:4000/api/webhooks/stripe
    ```
 
    → `STRIPE_WEBHOOK_SECRET=whsec_...`
-3. In production add a webhook endpoint `https://<API_PUBLIC_URL>/webhooks/stripe` for `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed` and `checkout.session.expired`.
+3. In production add a webhook endpoint `https://<API_PUBLIC_URL>/api/webhooks/stripe` for `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed` and `checkout.session.expired`.
 
 **Mercado Pago**
 
 1. Create an application at <https://www.mercadopago.com/developers/panel/app> and copy the **Access token** → `MERCADOPAGO_ACCESS_TOKEN=APP_USR-...` (use test credentials while developing).
-2. Under **Webhooks**, set the URL to `https://<API_PUBLIC_URL>/webhooks/mercadopago`, subscribe to **Payments**, and copy the **secret signature** → `MERCADOPAGO_WEBHOOK_SECRET=...`. (Mercado Pago must reach your API; use a tunnel such as `ngrok http 4000` locally and set `API_PUBLIC_URL` to the tunnel URL.)
+2. Under **Webhooks**, set the URL to `https://<API_PUBLIC_URL>/api/webhooks/mercadopago`, subscribe to **Payments**, and copy the **secret signature** → `MERCADOPAGO_WEBHOOK_SECRET=...`. (Mercado Pago must reach your API; use a tunnel such as `ngrok http 4000` locally and set `API_PUBLIC_URL` to the tunnel URL.)
 3. `MERCADOPAGO_CURRENCY` (e.g. `ARS`, `BRL`, `MXN`) and `MERCADOPAGO_FX_RATE` convert the USD catalog prices into the charged currency.
+4. With test credentials set `MERCADOPAGO_PREFILL_PAYER=false`: test sellers can only be paid by test buyers, so prefilling the real customer email makes Checkout Pro reject the payment. Pay while logged in as a test buyer account.
 
 **Crypto (USDC)**
 
