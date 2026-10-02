@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
 import { MockPaymentProvider, PaymentRegistry, StripePaymentProvider } from "../src/services/payments";
 import type { StripeCheckoutClient } from "../src/services/payments/stripe";
-import { verifyMercadoPagoSignature } from "../src/services/payments/mercadopago";
+import { MercadoPagoPaymentProvider, verifyMercadoPagoSignature } from "../src/services/payments/mercadopago";
 
 const sessionInput = {
   orderId: "order_123456789",
@@ -34,6 +34,33 @@ describe("StripePaymentProvider", () => {
     const create = vi.fn(async () => ({ id: "cs_1", url: null }));
     const provider = new StripePaymentProvider({ checkout: { sessions: { create } } } as unknown as StripeCheckoutClient);
     await expect(provider.createSession(sessionInput)).rejects.toThrow(/URL/);
+  });
+});
+
+describe("MercadoPagoPaymentProvider", () => {
+  const preferenceBody = async (prefillPayer?: boolean) => {
+    const fetchImpl = vi.fn(
+      async (_url: string | URL | Request, _init?: RequestInit) =>
+        new Response(JSON.stringify({ id: "pref_1", init_point: "https://mp.test/pref_1" })),
+    );
+    const mp = new MercadoPagoPaymentProvider(
+      "APP_USR-test",
+      { currency: "ARS", fxRate: 1000, notificationUrl: "http://api/api/webhooks/mercadopago", prefillPayer },
+      fetchImpl as unknown as typeof fetch,
+    );
+    const session = await mp.createSession(sessionInput);
+    expect(session.client).toEqual({ type: "redirect", url: "https://mp.test/pref_1" });
+    return JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body)) as { payer?: { email: string }; items: Array<{ unit_price: number }> };
+  };
+
+  it("converts the total and prefills the payer email by default", async () => {
+    const body = await preferenceBody();
+    expect(body.items[0]?.unit_price).toBe(47500);
+    expect(body.payer).toEqual({ email: "ana@test.dev" });
+  });
+
+  it("omits the payer when prefilling is disabled", async () => {
+    expect((await preferenceBody(false)).payer).toBeUndefined();
   });
 });
 

@@ -16,7 +16,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
   constructor(
     private readonly accessToken: string,
-    private readonly opts: { currency: string; fxRate: number; notificationUrl: string },
+    private readonly opts: { currency: string; fxRate: number; notificationUrl: string; prefillPayer?: boolean },
     private readonly fetchImpl: typeof fetch = fetch,
   ) {}
 
@@ -41,7 +41,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
             unit_price: unitPrice,
           },
         ],
-        payer: { email: input.customerEmail },
+        ...(this.opts.prefillPayer === false ? {} : { payer: { email: input.customerEmail } }),
         back_urls: { success: input.successUrl, failure: input.cancelUrl, pending: input.successUrl },
         auto_return: "approved",
         notification_url: this.opts.notificationUrl,

@@ -86,6 +86,7 @@ MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
 MERCADOPAGO_WEBHOOK_SECRET=...            # ver paso 5
 MERCADOPAGO_CURRENCY=ARS
 MERCADOPAGO_FX_RATE=1200                  # pesos por dólar (los precios del catálogo están en USD)
+MERCADOPAGO_PREFILL_PAYER=false           # solo con credenciales de prueba: el vendedor de prueba solo acepta compradores de prueba
 
 USDC_TOKEN_ADDRESS=0x036CbD53842c5426634e7929541eC2318f3dCF7e   # USDC de Circle en Base Sepolia
 MERCHANT_WALLET_ADDRESS=0x...             # wallet del comercio
@@ -121,7 +122,7 @@ NEXT_PUBLIC_PRIVY_APP_ID=...              # el mismo App ID de Privy
 
 En el panel de tu aplicación → **Webhooks**:
 
-- URL: `https://<tu-api>.up.railway.app/webhooks/mercadopago`
+- URL: `https://<tu-api>.up.railway.app/api/webhooks/mercadopago`
 - Evento: **Pagos**
 - Copiar la **clave secreta** y ponerla en `MERCADOPAGO_WEBHOOK_SECRET` en Railway.
 

@@ -32,6 +32,7 @@ const envSchema = z.object({
   MERCADOPAGO_WEBHOOK_SECRET: optionalString,
   MERCADOPAGO_CURRENCY: z.string().default("ARS"),
   MERCADOPAGO_FX_RATE: z.coerce.number().positive().default(1),
+  MERCADOPAGO_PREFILL_PAYER: z.stringbool().default(true),
   USDC_TOKEN_ADDRESS: optionalString,
   MERCHANT_WALLET_ADDRESS: optionalString,
   CRYPTO_MIN_CONFIRMATIONS: z.coerce.number().int().min(1).default(1),
