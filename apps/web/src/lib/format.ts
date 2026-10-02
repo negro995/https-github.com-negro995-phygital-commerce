@@ -40,4 +40,7 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   mock: "pago de prueba",
 };
 
-export const paymentMethodLabel = (method: PaymentMethod | null) => (method ? PAYMENT_METHOD_LABELS[method] : "—");
+export const paymentMethodLabel = (method: PaymentMethod | "pos" | null) => {
+  if (!method) return "—";
+  return method === "pos" ? "pago en el local" : PAYMENT_METHOD_LABELS[method];
+};

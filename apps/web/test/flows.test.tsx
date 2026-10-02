@@ -5,6 +5,7 @@ import { ConciergePanel } from "@/components/concierge";
 import { CryptoPay } from "@/components/crypto-pay";
 import { CartProvider } from "@/lib/cart";
 import { walletErrorMessage } from "@/lib/crypto-pay";
+import { paymentMethodLabel } from "@/lib/format";
 import type { ConciergeResult } from "@/lib/types";
 import { jsonResponse } from "./fixtures";
 
@@ -123,6 +124,14 @@ describe("CryptoPay", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Transfer amount too low");
     expect(screen.getByRole("button", { name: "Verificar de nuevo" })).toBeInTheDocument();
+  });
+});
+
+describe("paymentMethodLabel", () => {
+  it("labels in-store and missing payment methods", () => {
+    expect(paymentMethodLabel("pos")).toBe("pago en el local");
+    expect(paymentMethodLabel("mercadopago")).toBe("Mercado Pago");
+    expect(paymentMethodLabel(null)).toBe("—");
   });
 });
 

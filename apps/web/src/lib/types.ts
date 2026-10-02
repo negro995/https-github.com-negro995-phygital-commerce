@@ -69,7 +69,7 @@ export interface OrderView {
   id: string;
   status: OrderStatus;
   channel: "WEB" | "IN_STORE";
-  paymentMethod: PaymentMethod | null;
+  paymentMethod: PaymentMethod | "pos" | null;
   subtotalCents: number;
   discountBps: number;
   discountCents: number;
@@ -133,7 +133,7 @@ export interface AdminStats {
   customers: number;
   passports: { issued: number; claimed: number };
   lowStock: Product[];
-  recentOrders: Array<{ id: string; channel: "WEB" | "IN_STORE"; status: OrderStatus; totalCents: number; paymentMethod: PaymentMethod | null; email: string | null; createdAt: string }>;
+  recentOrders: Array<{ id: string; channel: "WEB" | "IN_STORE"; status: OrderStatus; totalCents: number; paymentMethod: PaymentMethod | "pos" | null; email: string | null; createdAt: string }>;
 }
 
 export interface Store {
