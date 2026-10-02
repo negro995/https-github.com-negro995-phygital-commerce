@@ -1,6 +1,6 @@
-# Phygital Commerce
+# Lazo
 
-A full-stack **Web3 + AI hybrid commerce platform** for physical retailers and digital stores.
+**Lazo** is a full-stack **Web3 + AI hybrid commerce platform** for physical retailers and digital stores, launching first in Argentina (Mercado Pago, ARS).
 
 - **Storefront** (Next.js + Tailwind, mobile-first) for physical and digital products, with an **AI shopping concierge**.
 - **Store manager dashboard**: inventory, in-store (POS) sales, **QR digital passports**, and a Digital Twin mint queue.
@@ -265,6 +265,10 @@ npm run build
 | `packages/web3` (Vitest, mocked viem) | Minter error classification, already-minted handling, USDC transfer verification                       |
 | `apps/api` (Vitest, mocked DB/chain)  | Mint worker retries/backoff, checkout & payment idempotency, Stripe/MP signatures, AI fallback, routes |
 | `apps/web` (Vitest + Testing Library) | Cart, API client errors, product/loyalty/mint components, concierge and crypto-payment flows           |
+
+## Deployment
+
+Step-by-step production deployment (Vercel + Railway + Base Sepolia + Mercado Pago), in Spanish: [`docs/DEPLOY.es.md`](docs/DEPLOY.es.md). The root `Dockerfile` builds the API image and `railway.json` configures Railway.
 
 ## Production checklist
 

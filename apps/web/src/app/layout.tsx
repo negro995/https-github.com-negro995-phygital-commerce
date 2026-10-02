@@ -5,7 +5,7 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Phygital — shop, collect, get rewarded",
+  title: "Lazo — shop, collect, get rewarded",
   description: "Physical & digital products with soulbound Digital Twins, automatic loyalty rewards and an AI shopping concierge.",
 };
 

@@ -18,7 +18,7 @@ export function Header() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:h-16">
         <Link href="/" className="flex items-center gap-2 font-bold text-ink-900">
           <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-brand-600 to-fuchsia-600 text-white">✦</span>
-          <span className="hidden sm:inline">Phygital</span>
+          <span className="hidden sm:inline">Lazo</span>
         </Link>
         <nav className="ml-auto flex items-center gap-1">
           {isManager && (
