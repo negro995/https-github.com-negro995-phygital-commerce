@@ -49,24 +49,24 @@ export default function PosPage() {
     return (
       <div className="space-y-4">
         <div className="no-print space-y-3">
-          <Notice tone="success" title={`Sale recorded · ${money(result.totalCents)}`}>
+          <Notice tone="success" title={`Venta registrada · ${money(result.totalCents)}`}>
             {result.customerWallet
-              ? `Digital Twins are minting to ${shortAddress(result.customerWallet)}.`
-              : "Walk-in sale. Customers can scan the QR passports to claim their Digital Twins."}
+              ? `Los Gemelos Digitales se están emitiendo a ${shortAddress(result.customerWallet)}.`
+              : "Venta sin cliente registrado. El cliente puede escanear los pasaportes QR para reclamar sus Gemelos Digitales."}
           </Notice>
           <div className="flex gap-2">
             {result.passports.length > 0 && (
               <Button variant="secondary" onClick={() => window.print()}>
-                <Printer className="size-4" aria-hidden /> Print passports
+                <Printer className="size-4" aria-hidden /> Imprimir pasaportes
               </Button>
             )}
-            <Button onClick={() => setResult(null)}>New sale</Button>
+            <Button onClick={() => setResult(null)}>Nueva venta</Button>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {result.passports.map((p) => (
             <Card key={p.code} className="flex flex-col items-center text-center">
-              <QrSvg svg={p.qrSvg} label={`QR passport ${p.serial}`} className="size-36 bg-white" />
+              <QrSvg svg={p.qrSvg} label={`Pasaporte QR ${p.serial}`} className="size-36 bg-white" />
               <p className="mt-2 font-mono text-xs">{p.serial}</p>
               <p className="break-all text-[10px] text-ink-500">{p.url}</p>
             </Card>
@@ -78,10 +78,10 @@ export default function PosPage() {
 
   return (
     <div className="space-y-4 pb-28 md:pb-0">
-      <h1 className="text-2xl font-bold">In-store sale</h1>
+      <h1 className="text-2xl font-bold">Venta en el local</h1>
       {(products.error || stores.error) && <Notice tone="error">{products.error ?? stores.error}</Notice>}
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Store">
+        <Field label="Local">
           <select className={inputCls} value={selectedStore} onChange={(e) => setStoreId(e.target.value)}>
             {stores.data?.stores.map((s) => (
               <option key={s.id} value={s.id}>
@@ -91,8 +91,8 @@ export default function PosPage() {
             ))}
           </select>
         </Field>
-        <Field label="Customer email (optional)" hint="Known customers get their Digital Twin minted immediately.">
-          <input type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="customer@example.com" />
+        <Field label="Email del cliente (opcional)" hint="Si el cliente ya está registrado, su Gemelo Digital se emite al instante.">
+          <input type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="cliente@ejemplo.com" />
         </Field>
       </div>
       {!products.data ? (
@@ -106,15 +106,15 @@ export default function PosPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{p.name}</p>
                   <p className="text-xs text-ink-500">
-                    {money(p.priceCents)} · {p.stock} in stock
+                    {money(p.priceCents)} · {p.stock} en stock
                   </p>
                 </div>
                 <div className="flex items-center">
-                  <button className="grid size-10 place-items-center rounded-lg hover:bg-ink-100" aria-label={`Remove one ${p.name}`} onClick={() => bump(p, -1)}>
+                  <button className="grid size-10 place-items-center rounded-lg hover:bg-ink-100" aria-label={`Quitar un ${p.name}`} onClick={() => bump(p, -1)}>
                     <Minus className="size-4" aria-hidden />
                   </button>
                   <span className="w-6 text-center text-sm font-semibold">{q}</span>
-                  <button className="grid size-10 place-items-center rounded-lg hover:bg-ink-100 disabled:opacity-40" aria-label={`Add one ${p.name}`} disabled={q >= p.stock} onClick={() => bump(p, 1)}>
+                  <button className="grid size-10 place-items-center rounded-lg hover:bg-ink-100 disabled:opacity-40" aria-label={`Agregar un ${p.name}`} disabled={q >= p.stock} onClick={() => bump(p, 1)}>
                     <Plus className="size-4" aria-hidden />
                   </button>
                 </div>
@@ -125,12 +125,12 @@ export default function PosPage() {
       )}
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" className="size-4 accent-brand-600" checked={issuePassports} onChange={(e) => setIssuePassports(e.target.checked)} />
-        Print QR digital passports for physical items
+        Imprimir pasaportes digitales QR para los productos físicos
       </label>
       {error && <Notice tone="error">{error}</Notice>}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ink-100 bg-white p-3 md:static md:border-0 md:bg-transparent md:p-0">
         <Button className="w-full" disabled={items.length === 0 || !selectedStore} loading={submitting} onClick={() => void submit()}>
-          Record sale · {money(total)}
+          Registrar venta · {money(total)}
         </Button>
       </div>
     </div>

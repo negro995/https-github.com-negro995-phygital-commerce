@@ -6,13 +6,14 @@ import { MintStatusBadge, TxLink } from "@/components/mint-status";
 import { ProductImage } from "@/components/product-card";
 import { Badge, Button, Card, EmptyState, Notice, Spinner } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
-import { dateTime, money } from "@/lib/format";
+import { dateTime, money, orderStatusLabel } from "@/lib/format";
+import type { OrderStatus } from "@phygital/shared";
 import type { Twin } from "@/lib/types";
 import { useApi } from "@/lib/use-api";
 
 interface OrderSummary {
   id: string;
-  status: string;
+  status: OrderStatus;
   channel: "WEB" | "IN_STORE";
   totalCents: number;
   currency: string;
@@ -29,9 +30,9 @@ export default function AccountPage() {
   if (!signedIn) {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
-        <EmptyState title="Sign in to see your rewards">
+        <EmptyState title="Ingresá para ver tus beneficios">
           <Button className="mt-2" onClick={signIn}>
-            Sign in
+            Ingresar
           </Button>
         </EmptyState>
       </div>
@@ -46,11 +47,11 @@ export default function AccountPage() {
       </div>
       <div className="space-y-6">
         <section>
-          <h2 className="text-lg font-bold">Digital Twins</h2>
+          <h2 className="text-lg font-bold">Gemelos Digitales</h2>
           {twins.error && <Notice tone="error">{twins.error}</Notice>}
           {twins.data && twins.data.twins.length === 0 && (
-            <EmptyState title="No twins yet">
-              Buy anything online or scan a product passport in-store to mint your first.
+            <EmptyState title="Todavía no tenés gemelos">
+              Comprá online o escaneá el pasaporte de un producto en el local para emitir el primero.
             </EmptyState>
           )}
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -61,7 +62,7 @@ export default function AccountPage() {
                   <p className="line-clamp-1 text-sm font-semibold">{t.product.name}</p>
                   <div className="flex flex-wrap items-center gap-1">
                     <MintStatusBadge status={t.status} />
-                    <Badge>{t.source === "ORDER" ? "Online" : "In-store"}</Badge>
+                    <Badge>{t.source === "ORDER" ? "Online" : "En el local"}</Badge>
                   </div>
                   <TxLink txHash={t.txHash} explorerUrl={t.explorerUrl} />
                 </div>
@@ -71,9 +72,9 @@ export default function AccountPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-bold">Orders</h2>
+          <h2 className="text-lg font-bold">Pedidos</h2>
           {orders.error && <Notice tone="error">{orders.error}</Notice>}
-          {orders.data && orders.data.orders.length === 0 && <EmptyState title="No orders yet" />}
+          {orders.data && orders.data.orders.length === 0 && <EmptyState title="Todavía no hiciste pedidos" />}
           <ul className="mt-3 space-y-2">
             {orders.data?.orders.map((o) => (
               <li key={o.id}>
@@ -81,7 +82,7 @@ export default function AccountPage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{o.items.map((i) => `${i.quantity}× ${i.product.name}`).join(", ")}</p>
                     <p className="text-xs text-ink-500">
-                      {dateTime(o.createdAt)} · {o.channel === "WEB" ? "Online" : "In-store"} · {o.status.replace("_", " ").toLowerCase()}
+                      {dateTime(o.createdAt)} · {o.channel === "WEB" ? "Online" : "En el local"} · {orderStatusLabel(o.status)}
                     </p>
                   </div>
                   <p className="text-sm font-semibold">{money(o.totalCents, o.currency)}</p>

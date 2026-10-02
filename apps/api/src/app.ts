@@ -60,14 +60,14 @@ export function createApp(deps: AppDeps) {
       return c.json({ error: { code: err.code, message: err.message, details: err.details } }, err.status);
     }
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      if (err.code === "P2002") return c.json({ error: { code: "CONFLICT", message: "Resource already exists" } }, 409);
-      if (err.code === "P2025") return c.json({ error: { code: "NOT_FOUND", message: "Resource not found" } }, 404);
+      if (err.code === "P2002") return c.json({ error: { code: "CONFLICT", message: "El recurso ya existe" } }, 409);
+      if (err.code === "P2025") return c.json({ error: { code: "NOT_FOUND", message: "No encontramos el recurso" } }, 404);
     }
     if (err instanceof Error && err.name === "ZodError") {
-      return c.json({ error: { code: "BAD_REQUEST", message: "Invalid request" } }, 400);
+      return c.json({ error: { code: "BAD_REQUEST", message: "Solicitud inválida" } }, 400);
     }
     deps.logger.error("Unhandled error", { path: c.req.path, error: err instanceof Error ? err.stack : String(err) });
-    return c.json({ error: { code: "INTERNAL", message: "Something went wrong" } }, 500);
+    return c.json({ error: { code: "INTERNAL", message: "Algo salió mal" } }, 500);
   });
 
   return app;

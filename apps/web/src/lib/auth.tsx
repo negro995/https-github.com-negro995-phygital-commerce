@@ -46,7 +46,7 @@ export function useAuthCore(opts: {
         setMe(next);
         setMeError(null);
       },
-      (err: unknown) => setMeError(err instanceof Error ? err.message : "Could not load your account"),
+      (err: unknown) => setMeError(err instanceof Error ? err.message : "No pudimos cargar tu cuenta"),
     );
   }, [signedIn, headers]);
 

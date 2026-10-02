@@ -7,7 +7,7 @@ import { MintStatusBadge, TxLink } from "@/components/mint-status";
 import { Badge, Button, Card, Notice, Spinner, cx } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
 import { useConfig } from "@/lib/config";
-import { dateTime, shortAddress } from "@/lib/format";
+import { MINT_STATUS_LABELS, dateTime, shortAddress } from "@/lib/format";
 import type { AdminMint } from "@/lib/types";
 import { useApi } from "@/lib/use-api";
 
@@ -33,10 +33,10 @@ export default function MintsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Digital Twin mint queue</h1>
+      <h1 className="text-2xl font-bold">Cola de emisión de Gemelos Digitales</h1>
       {config && !config.web3.minting && (
-        <Notice tone="warning" title="On-chain minting is not configured">
-          Mints are safely queued and will be processed automatically once RPC_URL, TWIN_CONTRACT_ADDRESS and MINTER_PRIVATE_KEY are set on the API.
+        <Notice tone="warning" title="La emisión en blockchain no está configurada">
+          Las emisiones quedan en cola de forma segura y se procesan automáticamente cuando configures RPC_URL, TWIN_CONTRACT_ADDRESS y MINTER_PRIVATE_KEY en la API.
         </Notice>
       )}
       <div className="flex gap-2 overflow-x-auto">
@@ -46,7 +46,7 @@ export default function MintsPage() {
             onClick={() => setFilter(s)}
             className={cx("min-h-10 shrink-0 rounded-full px-4 text-sm font-medium ring-1", filter === s ? "bg-ink-900 text-white ring-ink-900" : "bg-white ring-ink-200")}
           >
-            {s ? s.toLowerCase() : "all"}
+            {s ? MINT_STATUS_LABELS[s] : "Todas"}
           </button>
         ))}
       </div>
@@ -56,7 +56,7 @@ export default function MintsPage() {
       ) : (
         <Card>
           {data?.mints.length === 0 ? (
-            <p className="text-sm text-ink-500">Nothing here.</p>
+            <p className="text-sm text-ink-500">No hay nada acá.</p>
           ) : (
             <ul className="divide-y divide-ink-100">
               {data?.mints.map((m) => (
@@ -68,12 +68,12 @@ export default function MintsPage() {
                     </p>
                     {m.lastError && <p className="mt-0.5 line-clamp-2 text-xs text-red-700">{m.lastError}</p>}
                   </div>
-                  <Badge>{m.source === "ORDER" ? "order" : "QR claim"}</Badge>
+                  <Badge>{m.source === "ORDER" ? "pedido" : "reclamo QR"}</Badge>
                   <MintStatusBadge status={m.status} attempts={m.attempts} />
                   <TxLink txHash={m.txHash} explorerUrl={m.explorerUrl} />
                   {(m.status === "FAILED" || (m.status === "PENDING" && m.attempts > 0)) && (
                     <Button variant="secondary" loading={retrying === m.id} onClick={() => void retry(m.id)}>
-                      <RotateCw className="size-4" aria-hidden /> Retry
+                      <RotateCw className="size-4" aria-hidden /> Reintentar
                     </Button>
                   )}
                 </li>

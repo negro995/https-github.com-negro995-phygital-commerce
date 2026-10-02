@@ -25,7 +25,7 @@ export class DevAuthVerifier implements AuthVerifier {
   async verify(headers: Headers): Promise<AuthIdentity | null> {
     const email = headers.get("x-demo-email")?.trim().toLowerCase();
     if (!email) return null;
-    if (!EMAIL_RE.test(email)) throw new AppError("UNAUTHORIZED", "Invalid demo email");
+    if (!EMAIL_RE.test(email)) throw new AppError("UNAUTHORIZED", "Email de demo inválido");
     const wallet = headers.get("x-demo-wallet")?.trim();
     return {
       email,
@@ -61,7 +61,7 @@ export class PrivyAuthVerifier implements AuthVerifier {
       did = payload.sub;
     } catch (err) {
       this.logger.debug("Privy token rejected", { error: err instanceof Error ? err.message : String(err) });
-      throw new AppError("UNAUTHORIZED", "Invalid or expired session");
+      throw new AppError("UNAUTHORIZED", "Tu sesión no es válida o expiró");
     }
 
     const cached = this.cache.get(did);
@@ -74,10 +74,10 @@ export class PrivyAuthVerifier implements AuthVerifier {
       },
       signal: AbortSignal.timeout(10_000),
     });
-    if (!res.ok) throw new AppError("UNAUTHORIZED", "Unable to load Privy user");
+    if (!res.ok) throw new AppError("UNAUTHORIZED", "No pudimos cargar tu usuario de Privy");
     const user = (await res.json()) as PrivyUser;
     const email = primaryEmail(user)?.toLowerCase();
-    if (!email) throw new AppError("FORBIDDEN", "An email-linked account is required");
+    if (!email) throw new AppError("FORBIDDEN", "Necesitás una cuenta con email asociado");
     const identity: AuthIdentity = { email, privyId: did, walletAddress: embeddedWalletAddress(user) };
     this.cache.set(did, { identity, expires: Date.now() + 5 * 60_000 });
     return identity;

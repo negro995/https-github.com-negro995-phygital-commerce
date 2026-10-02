@@ -16,7 +16,7 @@ interface Turn {
   result?: ConciergeResult;
 }
 
-const PROMPTS = ["A gift under $50", "What pairs with my last purchase?", "Show me digital collectibles", "How do I reach the next tier?"];
+const PROMPTS = ["Un regalo de menos de US$ 50", "¿Qué combina con mi última compra?", "Mostrame coleccionables digitales", "¿Cómo llego al próximo nivel?"];
 
 export function ConciergePanel({ onClose }: { onClose?: () => void }) {
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -65,11 +65,11 @@ export function ConciergePanel({ onClose }: { onClose?: () => void }) {
           <Bot className="size-4" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-ink-900">AI Concierge</p>
-          <p className="text-xs text-ink-500">Personal picks · loyalty discounts auto-applied</p>
+          <p className="text-sm font-semibold text-ink-900">Asistente IA</p>
+          <p className="text-xs text-ink-500">Recomendaciones para vos · descuentos aplicados automáticamente</p>
         </div>
         {onClose && (
-          <button onClick={onClose} className="grid size-10 place-items-center rounded-full hover:bg-ink-100" aria-label="Close concierge">
+          <button onClick={onClose} className="grid size-10 place-items-center rounded-full hover:bg-ink-100" aria-label="Cerrar asistente">
             <X className="size-5" aria-hidden />
           </button>
         )}
@@ -78,7 +78,7 @@ export function ConciergePanel({ onClose }: { onClose?: () => void }) {
       <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
         {turns.length === 0 && (
           <div className="space-y-3">
-            <p className="text-sm text-ink-600">Hi! I know the whole catalog and your purchase history — online and in-store. What are you looking for?</p>
+            <p className="text-sm text-ink-600">¡Hola! Conozco todo el catálogo y tu historial de compras, online y en el local. ¿Qué estás buscando?</p>
             <div className="flex flex-wrap gap-2">
               {PROMPTS.map((p) => (
                 <button key={p} onClick={() => void send(p)} className="rounded-full bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-100">
@@ -100,7 +100,7 @@ export function ConciergePanel({ onClose }: { onClose?: () => void }) {
                 {turn.content}
               </p>
               {turn.result?.degraded && (
-                <p className="text-xs text-amber-700">AI is busy right now — showing smart picks from our recommender instead.</p>
+                <p className="text-xs text-amber-700">La IA está ocupada en este momento: te mostramos sugerencias de nuestro recomendador.</p>
               )}
               {turn.result?.recommendations.map((r) => (
                 <div key={r.productId} className="flex items-center gap-3 rounded-xl p-2 ring-1 ring-ink-100">
@@ -118,7 +118,7 @@ export function ConciergePanel({ onClose }: { onClose?: () => void }) {
                   <button
                     onClick={() => void addToCart(r.productId, r.slug)}
                     className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-600 text-white hover:bg-brand-700"
-                    aria-label={`Add ${r.name} to cart`}
+                    aria-label={`Agregar ${r.name} al carrito`}
                   >
                     <Plus className="size-4" aria-hidden />
                   </button>
@@ -127,7 +127,7 @@ export function ConciergePanel({ onClose }: { onClose?: () => void }) {
             </div>
           </div>
         ))}
-        {sending && <p className="text-xs text-ink-500">Concierge is thinking…</p>}
+        {sending && <p className="text-xs text-ink-500">El asistente está pensando…</p>}
         {error && <Notice tone="error">{error}</Notice>}
         <div ref={endRef} />
       </div>
@@ -142,12 +142,12 @@ export function ConciergePanel({ onClose }: { onClose?: () => void }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask for a recommendation…"
-          aria-label="Message the concierge"
+          placeholder="Pedí una recomendación…"
+          aria-label="Mensaje para el asistente"
           maxLength={2000}
           className="min-h-11 flex-1 rounded-xl bg-ink-50 px-3 text-sm ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500 focus:outline-none"
         />
-        <Button type="submit" aria-label="Send" loading={sending} disabled={!input.trim()} className="w-11 px-0">
+        <Button type="submit" aria-label="Enviar" loading={sending} disabled={!input.trim()} className="w-11 px-0">
           {!sending && <Send className="size-4" aria-hidden />}
         </Button>
       </form>
@@ -169,7 +169,7 @@ export function ConciergeLauncher() {
           onClick={() => setOpen(true)}
           className="fixed bottom-5 right-5 z-40 flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-fuchsia-600 px-5 text-sm font-semibold text-white shadow-lg hover:shadow-xl sm:bottom-6 sm:right-6"
         >
-          <Sparkles className="size-4" aria-hidden /> Ask AI
+          <Sparkles className="size-4" aria-hidden /> Preguntale a la IA
         </button>
       )}
     </>

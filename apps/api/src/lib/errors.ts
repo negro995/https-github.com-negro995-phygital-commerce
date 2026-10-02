@@ -28,4 +28,4 @@ export class AppError extends Error {
   }
 }
 
-export const notFound = (what: string) => new AppError("NOT_FOUND", `${what} not found`);
+export const notFound = (what: string) => new AppError("NOT_FOUND", `No encontramos ${what}`);

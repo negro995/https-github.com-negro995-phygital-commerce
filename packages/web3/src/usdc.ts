@@ -34,21 +34,21 @@ export async function verifyErc20Transfer(
     receipt = await publicClient.getTransactionReceipt({ hash: txHash });
   } catch (err) {
     if (err instanceof TransactionReceiptNotFoundError) {
-      return { ok: false, reason: "pending", message: "Transaction not mined yet" };
+      return { ok: false, reason: "pending", message: "La transacción todavía no se confirmó en un bloque" };
     }
     throw err;
   }
-  if (receipt.status !== "success") return { ok: false, reason: "reverted", message: "Transaction reverted" };
+  if (receipt.status !== "success") return { ok: false, reason: "reverted", message: "La transacción fue revertida" };
 
   const transfers = parseEventLogs({ abi: erc20Abi, eventName: "Transfer", logs: receipt.logs }).filter(
     (log) => isAddressEqual(log.address, token) && isAddressEqual(log.args.to, recipient),
   );
   if (transfers.length === 0) {
-    return { ok: false, reason: "no_matching_transfer", message: "No token transfer to the merchant found" };
+    return { ok: false, reason: "no_matching_transfer", message: "No encontramos una transferencia del token a la wallet del comercio" };
   }
   const amount = transfers.reduce((sum, log) => sum + log.args.value, 0n);
   if (amount < minAmount) {
-    return { ok: false, reason: "insufficient_amount", message: `Received ${amount}, expected ${minAmount}` };
+    return { ok: false, reason: "insufficient_amount", message: `Monto insuficiente: recibimos ${amount}, se esperaba ${minAmount} (unidades mínimas del token)` };
   }
 
   const head = await publicClient.getBlockNumber();
@@ -57,7 +57,7 @@ export async function verifyErc20Transfer(
     return {
       ok: false,
       reason: "insufficient_confirmations",
-      message: `${confirmations}/${minConfirmations} confirmations`,
+      message: `${confirmations}/${minConfirmations} confirmaciones`,
     };
   }
   return { ok: true, from: transfers[0]!.args.from, amount, blockNumber: receipt.blockNumber };

@@ -42,12 +42,12 @@ export async function apiRequest<T>(path: string, init: RequestInit & { json?: u
       body: json !== undefined ? JSON.stringify(json) : rest.body,
     });
   } catch {
-    throw new ApiError("NETWORK", "Can't reach the store right now. Check your connection and try again.", 0);
+    throw new ApiError("NETWORK", "No pudimos conectarnos con la tienda. Revisá tu conexión y volvé a intentar.", 0);
   }
   const body: unknown = await res.json().catch(() => null);
   if (!res.ok) {
     const err = (body as Partial<ApiErrorBody> | null)?.error;
-    throw new ApiError(err?.code ?? "INTERNAL", err?.message ?? `Request failed (${res.status})`, res.status, err?.details);
+    throw new ApiError(err?.code ?? "INTERNAL", err?.message ?? `La solicitud falló (${res.status})`, res.status, err?.details);
   }
   return { status: res.status, data: body as T };
 }
@@ -59,7 +59,7 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown 
 export function errorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.message;
   if (err instanceof Error) return err.message;
-  return "Something went wrong";
+  return "Algo salió mal";
 }
 
 /** Fetches a non-JSON resource (e.g. an authenticated QR SVG). */
@@ -68,8 +68,8 @@ export async function apiText(path: string): Promise<string> {
   try {
     res = await fetch(`${API_URL}${path}`, { headers: await authHeaderSource() });
   } catch {
-    throw new ApiError("NETWORK", "Can't reach the store right now.", 0);
+    throw new ApiError("NETWORK", "No pudimos conectarnos con la tienda.", 0);
   }
-  if (!res.ok) throw new ApiError("INTERNAL", `Request failed (${res.status})`, res.status);
+  if (!res.ok) throw new ApiError("INTERNAL", `La solicitud falló (${res.status})`, res.status);
   return res.text();
 }

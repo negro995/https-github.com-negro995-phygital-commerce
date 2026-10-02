@@ -15,10 +15,10 @@ import { money } from "@/lib/format";
 import type { CheckoutResult } from "@/lib/types";
 
 const METHOD_INFO: Record<PaymentMethod, { label: string; hint: string; icon: typeof CreditCard }> = {
-  stripe: { label: "Card / Apple Pay", hint: "Secure checkout by Stripe", icon: CreditCard },
-  mercadopago: { label: "Mercado Pago", hint: "Cards, cash & local methods", icon: Wallet },
-  crypto: { label: "USDC", hint: "Pay from any EVM wallet", icon: Bitcoin },
-  mock: { label: "Demo payment", hint: "Instant test payment (dev only)", icon: FlaskConical },
+  stripe: { label: "Tarjeta / Apple Pay", hint: "Pago seguro con Stripe", icon: CreditCard },
+  mercadopago: { label: "Mercado Pago", hint: "Tarjetas, efectivo y medios locales", icon: Wallet },
+  crypto: { label: "USDC", hint: "Pagá desde cualquier wallet EVM", icon: Bitcoin },
+  mock: { label: "Pago de prueba", hint: "Pago de prueba instantáneo (solo desarrollo)", icon: FlaskConical },
 };
 
 export default function CartPage() {
@@ -53,7 +53,7 @@ export default function CartPage() {
       }
       router.push(`/orders/${result.orderId}`);
     } catch (err) {
-      setError(err instanceof ApiError && err.code === "OUT_OF_STOCK" ? `${err.message}. Adjust the quantity and try again.` : errorMessage(err));
+      setError(err instanceof ApiError && err.code === "OUT_OF_STOCK" ? `${err.message}. Ajustá la cantidad y volvé a intentar.` : errorMessage(err));
       setSubmitting(false);
     }
   };
@@ -61,9 +61,9 @@ export default function CartPage() {
   if (lines.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-10">
-        <EmptyState title="Your cart is empty">
+        <EmptyState title="Tu carrito está vacío">
           <Link href="/" className="font-semibold text-brand-700 hover:underline">
-            Browse products
+            Ver productos
           </Link>
         </EmptyState>
       </div>
@@ -73,7 +73,7 @@ export default function CartPage() {
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_380px]">
       <section>
-        <h1 className="text-2xl font-bold">Your cart</h1>
+        <h1 className="text-2xl font-bold">Tu carrito</h1>
         <ul className="mt-4 space-y-3">
           {lines.map((l) => (
             <li key={l.productId} className="flex gap-3 rounded-2xl bg-white p-3 ring-1 ring-ink-100">
@@ -83,19 +83,19 @@ export default function CartPage() {
                   {l.name}
                 </Link>
                 <p className="text-xs text-ink-500">
-                  {money(l.unitPriceCents)} · {l.type === "DIGITAL" ? "Digital" : "Physical"}
+                  {money(l.unitPriceCents)} · {l.type === "DIGITAL" ? "Digital" : "Físico"}
                 </p>
                 <div className="mt-auto flex items-center gap-2 pt-2">
                   <div className="flex items-center rounded-lg ring-1 ring-ink-200">
-                    <button className="grid size-9 place-items-center" aria-label={`Decrease ${l.name}`} onClick={() => dispatch({ type: "setQuantity", productId: l.productId, quantity: l.quantity - 1 })}>
+                    <button className="grid size-9 place-items-center" aria-label={`Restar ${l.name}`} onClick={() => dispatch({ type: "setQuantity", productId: l.productId, quantity: l.quantity - 1 })}>
                       <Minus className="size-3.5" aria-hidden />
                     </button>
                     <span className="w-6 text-center text-sm">{l.quantity}</span>
-                    <button className="grid size-9 place-items-center" aria-label={`Increase ${l.name}`} onClick={() => dispatch({ type: "setQuantity", productId: l.productId, quantity: l.quantity + 1 })}>
+                    <button className="grid size-9 place-items-center" aria-label={`Sumar ${l.name}`} onClick={() => dispatch({ type: "setQuantity", productId: l.productId, quantity: l.quantity + 1 })}>
                       <Plus className="size-3.5" aria-hidden />
                     </button>
                   </div>
-                  <button className="ml-auto grid size-9 place-items-center rounded-lg text-ink-500 hover:bg-ink-100" aria-label={`Remove ${l.name}`} onClick={() => dispatch({ type: "remove", productId: l.productId })}>
+                  <button className="ml-auto grid size-9 place-items-center rounded-lg text-ink-500 hover:bg-ink-100" aria-label={`Quitar ${l.name}`} onClick={() => dispatch({ type: "remove", productId: l.productId })}>
                     <Trash2 className="size-4" aria-hidden />
                   </button>
                 </div>
@@ -108,20 +108,20 @@ export default function CartPage() {
 
       <aside>
         <Card className="space-y-4 lg:sticky lg:top-20">
-          <h2 className="font-semibold">Checkout</h2>
+          <h2 className="font-semibold">Finalizar compra</h2>
           {!signedIn && (
-            <Notice title="Earn a Digital Twin for this order" action={<Button variant="secondary" onClick={signIn}>Sign in</Button>}>
-              Members get automatic loyalty discounts. Or continue as guest — we&apos;ll create a wallet for your email.
+            <Notice title="Ganá un Gemelo Digital con esta compra" action={<Button variant="secondary" onClick={signIn}>Ingresar</Button>}>
+              Los miembros tienen descuentos de fidelidad automáticos. También podés seguir como invitado: creamos una wallet para tu email.
             </Notice>
           )}
-          <Field label="Email" hint="Your receipt and Digital Twin wallet are linked to this email.">
-            <input type="email" required className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} disabled={Boolean(me)} placeholder="you@example.com" />
+          <Field label="Email" hint="Tu comprobante y la wallet de tu Gemelo Digital quedan asociados a este email.">
+            <input type="email" required className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} disabled={Boolean(me)} placeholder="vos@ejemplo.com" />
           </Field>
 
           <fieldset>
-            <legend className="mb-2 text-sm font-medium text-ink-700">Payment method</legend>
-            {configError && <Notice tone="error">Payment options unavailable: {configError}</Notice>}
-            {config && methods.length === 0 && <Notice tone="warning">No payment methods are configured on this store yet.</Notice>}
+            <legend className="mb-2 text-sm font-medium text-ink-700">Medio de pago</legend>
+            {configError && <Notice tone="error">Medios de pago no disponibles: {configError}</Notice>}
+            {config && methods.length === 0 && <Notice tone="warning">Esta tienda todavía no tiene medios de pago configurados.</Notice>}
             <div className="grid gap-2">
               {methods.map((m) => {
                 const { label, hint, icon: Icon } = METHOD_INFO[m];
@@ -147,7 +147,7 @@ export default function CartPage() {
             {discountBps > 0 && (
               <div className="flex justify-between text-emerald-700">
                 <dt>
-                  {me?.loyalty.tier.name} discount ({discountBps / 100}%)
+                  Descuento {me?.loyalty.tier.name} ({discountBps / 100}%)
                 </dt>
                 <dd>−{money(estDiscount)}</dd>
               </div>
@@ -156,12 +156,12 @@ export default function CartPage() {
               <dt>Total</dt>
               <dd>{money(subtotalCents - estDiscount)}</dd>
             </div>
-            <p className="text-xs text-ink-500">Final total and loyalty discount are verified by the server at checkout.</p>
+            <p className="text-xs text-ink-500">El total final y el descuento de fidelidad se verifican en el servidor al confirmar.</p>
           </dl>
 
           {error && <Notice tone="error">{error}</Notice>}
           <Button className="w-full" loading={submitting} disabled={!selected || !email.includes("@")} onClick={() => void checkout()}>
-            Place order
+            Confirmar pedido
           </Button>
         </Card>
       </aside>

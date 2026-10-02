@@ -12,7 +12,7 @@ import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { useConfig } from "@/lib/config";
-import { money } from "@/lib/format";
+import { money, paymentMethodLabel } from "@/lib/format";
 import type { OrderView } from "@/lib/types";
 import { useApi } from "@/lib/use-api";
 
@@ -47,11 +47,11 @@ export default function OrderPage() {
     if (allMinted) void refreshMe();
   }, [allMinted, refreshMe]);
 
-  if (loading && !order) return <Spinner label="Loading your order…" />;
+  if (loading && !order) return <Spinner label="Cargando tu pedido…" />;
   if (error && !order) {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
-        <Notice tone="error" title="Couldn't load this order" action={<Button variant="secondary" onClick={() => void reload()}>Retry</Button>}>
+        <Notice tone="error" title="No pudimos cargar este pedido" action={<Button variant="secondary" onClick={() => void reload()}>Reintentar</Button>}>
           {error}
         </Notice>
       </div>
@@ -75,44 +75,44 @@ export default function OrderPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
       <div>
-        <p className="text-xs uppercase tracking-wider text-ink-500">Order #{order.id.slice(-8).toUpperCase()}</p>
+        <p className="text-xs uppercase tracking-wider text-ink-500">Pedido #{order.id.slice(-8).toUpperCase()}</p>
         <h1 className="mt-1 text-2xl font-bold">
-          {paid ? "Thank you! Your order is confirmed." : order.status === "PENDING_PAYMENT" ? "Complete your payment" : order.status === "CANCELLED" ? "Order cancelled" : "Payment failed"}
+          {paid ? "¡Gracias! Tu pedido está confirmado." : order.status === "PENDING_PAYMENT" ? "Completá tu pago" : order.status === "CANCELLED" ? "Pedido cancelado" : "El pago falló"}
         </h1>
       </div>
 
       {search.get("status") === "cancelled" && order.status === "PENDING_PAYMENT" && (
-        <Notice tone="warning" title="Payment was cancelled">You can retry below or return to your cart.</Notice>
+        <Notice tone="warning" title="El pago fue cancelado">Podés reintentar abajo o volver a tu carrito.</Notice>
       )}
-      {error && <Notice tone="warning">Live updates paused: {error}</Notice>}
+      {error && <Notice tone="warning">Actualizaciones en vivo en pausa: {error}</Notice>}
 
       <Card>
         <ol className="space-y-4">
           <li className="flex gap-3">
             {paid ? <CheckCircle2 className="size-6 text-emerald-600" aria-hidden /> : order.status === "PENDING_PAYMENT" ? <Clock className="size-6 text-amber-500" aria-hidden /> : <XCircle className="size-6 text-red-600" aria-hidden />}
             <div className="flex-1">
-              <p className="font-semibold">Payment</p>
+              <p className="font-semibold">Pago</p>
               <p className="text-sm text-ink-500">
                 {paid
-                  ? `Paid ${money(order.totalCents, order.currency)} via ${order.paymentMethod}`
+                  ? `Pagaste ${money(order.totalCents, order.currency)} con ${paymentMethodLabel(order.paymentMethod)}`
                   : order.status === "PENDING_PAYMENT"
-                    ? "Waiting for your payment…"
-                    : "This payment didn't go through. No Digital Twin was minted and you were not charged."}
+                    ? "Esperando tu pago…"
+                    : "El pago no se completó. No se emitió ningún Gemelo Digital y no se te cobró nada."}
               </p>
             </div>
           </li>
           <li className="flex gap-3">
             <Fingerprint className={`size-6 ${allMinted ? "text-emerald-600" : "text-ink-400"}`} aria-hidden />
             <div className="flex-1">
-              <p className="font-semibold">Digital Twins</p>
+              <p className="font-semibold">Gemelos Digitales</p>
               <p className="text-sm text-ink-500">
                 {!paid
-                  ? "Minted to your wallet once payment is confirmed."
+                  ? "Se emiten a tu wallet cuando se confirma el pago."
                   : order.mints.length === 0
-                    ? "No twin-enabled items in this order."
+                    ? "Este pedido no tiene productos con Gemelo Digital."
                     : allMinted
-                      ? "Minted on-chain. Your loyalty tier has been updated."
-                      : "Minting in the background — you can leave this page, we'll keep retrying until it lands."}
+                      ? "Emitidos en blockchain. Tu nivel de fidelidad ya se actualizó."
+                      : "Emitiendo en segundo plano: podés salir de esta página, vamos a seguir intentando hasta que se complete."}
               </p>
             </div>
           </li>
@@ -121,17 +121,17 @@ export default function OrderPage() {
 
       {order.status === "PENDING_PAYMENT" && order.paymentMethod === "mock" && (
         <Card className="space-y-3">
-          <Notice title="Demo payment">This store runs with mock payments enabled for local testing.</Notice>
+          <Notice title="Pago de prueba">Esta tienda tiene habilitados pagos de prueba para testing local.</Notice>
           {actionError && <Notice tone="error">{actionError}</Notice>}
           <Button className="w-full" loading={confirming} onClick={() => void confirmMock()}>
-            Complete demo payment
+            Completar pago de prueba
           </Button>
         </Card>
       )}
 
       {order.status === "PENDING_PAYMENT" && order.paymentMethod === "crypto" && (
         <Card>
-          <h2 className="mb-3 font-semibold">Pay with USDC</h2>
+          <h2 className="mb-3 font-semibold">Pagar con USDC</h2>
           {config?.web3.usdc ? (
             <CryptoPay
               orderId={order.id}
@@ -142,19 +142,19 @@ export default function OrderPage() {
               onPaid={() => void reload()}
             />
           ) : (
-            <Notice tone="warning">Crypto payments are temporarily unavailable. Your order is saved — please try again later.</Notice>
+            <Notice tone="warning">Los pagos con cripto no están disponibles por el momento. Tu pedido quedó guardado: probá de nuevo más tarde.</Notice>
           )}
         </Card>
       )}
 
       {(order.status === "PAYMENT_FAILED" || order.status === "CANCELLED") && (
         <Link href="/cart" className="block">
-          <Button className="w-full">Back to cart</Button>
+          <Button className="w-full">Volver al carrito</Button>
         </Link>
       )}
 
       <Card>
-        <h2 className="font-semibold">Items</h2>
+        <h2 className="font-semibold">Productos</h2>
         <ul className="mt-3 divide-y divide-ink-100">
           {order.items.map((item) => {
             const mints = order.mints.filter((m) => m.productId === item.product.id);
@@ -175,7 +175,7 @@ export default function OrderPage() {
                     ))}
                   </div>
                   {mints.some((m) => m.status === "FAILED") && (
-                    <p className="mt-1 text-xs text-red-700">Minting failed — our team has been notified and will retry. Your purchase is safe.</p>
+                    <p className="mt-1 text-xs text-red-700">La emisión falló: nuestro equipo ya fue notificado y lo va a reintentar. Tu compra está segura.</p>
                   )}
                 </div>
               </li>
@@ -189,7 +189,7 @@ export default function OrderPage() {
           </div>
           {order.discountCents > 0 && (
             <div className="flex justify-between text-emerald-700">
-              <dt>Loyalty discount ({order.discountBps / 100}%)</dt>
+              <dt>Descuento por fidelidad ({order.discountBps / 100}%)</dt>
               <dd>−{money(order.discountCents, order.currency)}</dd>
             </div>
           )}

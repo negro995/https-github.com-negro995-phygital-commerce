@@ -40,12 +40,12 @@ describe("ConciergePanel", () => {
       </CartProvider>,
     );
 
-    await userEvent.type(screen.getByLabelText("Message the concierge"), "I love coffee");
-    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+    await userEvent.type(screen.getByLabelText("Mensaje para el asistente"), "I love coffee");
+    await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(await screen.findByText("Here are a few picks for you.")).toBeInTheDocument();
     expect(screen.getByText("Cold Brew Kit")).toBeInTheDocument();
-    expect(screen.getByText("$38.00")).toBeInTheDocument();
+    expect(screen.getByText(/^US\$\s38,00$/)).toBeInTheDocument();
     const [, init] = fetchMock.mock.calls[0]! as [string, RequestInit];
     expect(JSON.parse(init.body as string)).toEqual({ message: "I love coffee", history: [] });
   });
@@ -57,8 +57,8 @@ describe("ConciergePanel", () => {
         <ConciergePanel />
       </CartProvider>,
     );
-    await userEvent.click(screen.getByRole("button", { name: "A gift under $50" }));
-    expect(await screen.findByText(/showing smart picks from our recommender/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Un regalo de menos de US$ 50" }));
+    expect(await screen.findByText(/te mostramos sugerencias de nuestro recomendador/)).toBeInTheDocument();
   });
 
   it("shows an error when the API is unreachable", async () => {
@@ -68,8 +68,8 @@ describe("ConciergePanel", () => {
         <ConciergePanel />
       </CartProvider>,
     );
-    await userEvent.click(screen.getByRole("button", { name: "A gift under $50" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(/can't reach the store/i);
+    await userEvent.click(screen.getByRole("button", { name: "Un regalo de menos de US$ 50" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos conectarnos con la tienda/i);
   });
 });
 
@@ -86,7 +86,15 @@ describe("CryptoPay", () => {
   it("shows the amount and falls back to manual tx entry without a browser wallet", () => {
     render(<CryptoPay {...props} onPaid={vi.fn()} />);
     expect(screen.getByText("38.00 USDC")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /no browser wallet detected/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /no detectamos una wallet en el navegador/i })).toBeDisabled();
+  });
+
+  it("explains why a malformed transaction hash can't be verified", async () => {
+    render(<CryptoPay {...props} onPaid={vi.fn()} />);
+    await userEvent.type(screen.getByPlaceholderText("0x…"), "invalid");
+    expect(screen.getByText(/debe empezar con 0x y tener 64 caracteres/)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("0x…")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("button", { name: "Verificar transacción" })).toBeDisabled();
   });
 
   it("verifies a pasted transaction hash and reports success", async () => {
@@ -96,7 +104,7 @@ describe("CryptoPay", () => {
     render(<CryptoPay {...props} onPaid={onPaid} />);
 
     await userEvent.type(screen.getByPlaceholderText("0x…"), txHash);
-    await userEvent.click(screen.getByRole("button", { name: "Verify transaction" }));
+    await userEvent.click(screen.getByRole("button", { name: "Verificar transacción" }));
 
     await waitFor(() => expect(onPaid).toHaveBeenCalled());
     const [url, init] = fetchMock.mock.calls[0]! as [string, RequestInit];
@@ -111,17 +119,17 @@ describe("CryptoPay", () => {
     );
     render(<CryptoPay {...props} onPaid={vi.fn()} />);
     await userEvent.type(screen.getByPlaceholderText("0x…"), txHash);
-    await userEvent.click(screen.getByRole("button", { name: "Verify transaction" }));
+    await userEvent.click(screen.getByRole("button", { name: "Verificar transacción" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Transfer amount too low");
-    expect(screen.getByRole("button", { name: "Check again" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Verificar de nuevo" })).toBeInTheDocument();
   });
 });
 
 describe("walletErrorMessage", () => {
   it("maps user rejection and unknown chains to friendly copy", () => {
-    expect(walletErrorMessage({ code: 4001, message: "User rejected the request" })).toMatch(/cancelled/);
-    expect(walletErrorMessage({ code: 4902 })).toMatch(/network/);
+    expect(walletErrorMessage({ code: 4001, message: "User rejected the request" })).toMatch(/Cancelaste/);
+    expect(walletErrorMessage({ code: 4902 })).toMatch(/red/);
     expect(walletErrorMessage(new Error("boom"))).toBe("boom");
   });
 });

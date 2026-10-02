@@ -16,13 +16,13 @@ export function SignInDialog({ open, onClose, onSubmit }: { open: boolean; onClo
         }}
       >
         <h2 id="signin-title" className="text-lg font-bold text-ink-900">
-          Sign in
+          Ingresar
         </h2>
         <p className="mt-1 text-sm text-ink-500">
-          Demo mode: enter any email. A wallet is created for you automatically on your first purchase — no seed phrase needed.
+          Modo demo: ingresá cualquier email. Te creamos una wallet automáticamente en tu primera compra, sin frases semilla.
         </p>
         <div className="mt-4">
-          <Field label="Email" hint="Use admin@phygital.dev to open the store manager dashboard.">
+          <Field label="Email" hint="Usá admin@phygital.dev para abrir el panel del comercio.">
             <input
               autoFocus
               type="email"
@@ -30,16 +30,16 @@ export function SignInDialog({ open, onClose, onSubmit }: { open: boolean; onClo
               className={inputCls}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="vos@ejemplo.com"
             />
           </Field>
         </div>
         <div className="mt-6 flex gap-2">
           <Button type="button" variant="secondary" className="flex-1" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" className="flex-1">
-            Continue
+            Continuar
           </Button>
         </div>
       </form>

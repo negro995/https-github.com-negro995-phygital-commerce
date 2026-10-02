@@ -27,25 +27,25 @@ export function Header() {
               className={cx("flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-medium hover:bg-ink-100", pathname.startsWith("/admin") && "text-brand-700")}
             >
               <LayoutDashboard className="size-5" aria-hidden />
-              <span className="hidden sm:inline">Manager</span>
+              <span className="hidden sm:inline">Panel</span>
             </Link>
           )}
           {ready && signedIn ? (
             <>
               <Link href="/account" className="flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-medium hover:bg-ink-100">
                 <User className="size-5" aria-hidden />
-                <span className="hidden max-w-32 truncate sm:inline">{me?.loyalty.tier.name ?? "Account"}</span>
+                <span className="hidden max-w-32 truncate sm:inline">{me?.loyalty.tier.name ?? "Mi cuenta"}</span>
               </Link>
-              <button onClick={() => void signOut()} className="grid size-11 place-items-center rounded-xl hover:bg-ink-100" aria-label="Sign out">
+              <button onClick={() => void signOut()} className="grid size-11 place-items-center rounded-xl hover:bg-ink-100" aria-label="Cerrar sesión">
                 <LogOut className="size-5" aria-hidden />
               </button>
             </>
           ) : (
             <Button variant="ghost" onClick={signIn} disabled={!ready}>
-              Sign in
+              Ingresar
             </Button>
           )}
-          <Link href="/cart" className="relative grid size-11 place-items-center rounded-xl hover:bg-ink-100" aria-label={`Cart, ${count} items`}>
+          <Link href="/cart" className="relative grid size-11 place-items-center rounded-xl hover:bg-ink-100" aria-label={`Carrito, ${count} productos`}>
             <ShoppingBag className="size-5" aria-hidden />
             {count > 0 && (
               <span className="absolute right-1 top-1 grid min-w-5 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">{count}</span>

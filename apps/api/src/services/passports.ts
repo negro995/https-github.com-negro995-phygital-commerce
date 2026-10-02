@@ -19,7 +19,7 @@ export async function generatePassports(
   input: { productId: string; storeId?: string; quantity: number; orderId?: string; claimedById?: string },
 ) {
   const product = await deps.db.product.findUnique({ where: { id: input.productId } });
-  if (!product) throw notFound("Product");
+  if (!product) throw notFound("el producto");
   if (product.type !== "PHYSICAL") throw new AppError("BAD_REQUEST", "QR passports are only for physical products");
 
   const existing = await deps.db.productPassport.count({ where: { productId: product.id } });
@@ -51,7 +51,7 @@ export async function getPassport(deps: Pick<AppDeps, "db" | "chain">, code: str
     where: { code },
     include: { product: true, store: true, mint: true },
   });
-  if (!passport) throw notFound("Passport");
+  if (!passport) throw notFound("el pasaporte");
   return {
     code: passport.code,
     serial: passport.serial,
@@ -83,9 +83,9 @@ export async function claimPassport(deps: AppDeps, code: string, rawUser: User) 
   const user = await ensureWallet(deps.db, deps.wallets, rawUser);
   const result = await deps.db.$transaction(async (tx) => {
     const passport = await tx.productPassport.findUnique({ where: { code }, include: { product: true } });
-    if (!passport) throw notFound("Passport");
+    if (!passport) throw notFound("el pasaporte");
     if (passport.claimedById && passport.claimedById !== user.id) {
-      throw new AppError("CONFLICT", "This product has already been claimed by another owner");
+      throw new AppError("CONFLICT", "Este producto ya fue reclamado por otra persona");
     }
     await tx.checkIn.create({ data: { userId: user.id, storeId: passport.storeId, passportId: passport.id } });
     if (passport.claimedById === user.id) return { alreadyClaimed: true };
@@ -94,7 +94,7 @@ export async function claimPassport(deps: AppDeps, code: string, rawUser: User) 
       where: { id: passport.id, claimedById: null },
       data: { claimedById: user.id, claimedAt: new Date() },
     });
-    if (claimed.count === 0) throw new AppError("CONFLICT", "This product was just claimed by someone else");
+    if (claimed.count === 0) throw new AppError("CONFLICT", "Otra persona acaba de reclamar este producto");
 
     if (passport.product.twinEnabled) {
       await tx.nftMint.create({
@@ -122,10 +122,10 @@ export async function recordPosSale(
 ) {
   const { db } = deps;
   const store = await db.store.findUnique({ where: { id: input.storeId } });
-  if (!store) throw notFound("Store");
+  if (!store) throw notFound("el local");
   const products = await db.product.findMany({ where: { id: { in: input.items.map((i) => i.productId) } } });
   const byId = new Map(products.map((p) => [p.id, p]));
-  for (const item of input.items) if (!byId.has(item.productId)) throw notFound(`Product ${item.productId}`);
+  for (const item of input.items) if (!byId.has(item.productId)) throw notFound(`el producto ${item.productId}`);
 
   let customer: User | null = null;
   if (input.customerEmail) {
