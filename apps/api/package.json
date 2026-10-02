@@ -1,0 +1,32 @@
+{
+  "name": "@phygital/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "build": "tsup",
+    "start": "node --env-file-if-exists=.env dist/index.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "@phygital/db": "*",
+    "@phygital/shared": "*",
+    "@phygital/web3": "*",
+    "hono": "^4.9.0",
+    "jose": "^6.1.0",
+    "qrcode": "^1.5.4",
+    "stripe": "^22.0.0",
+    "viem": "^2.37.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/qrcode": "^1.5.5",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "vitest-mock-extended": "^3.1.0"
+  }
+}

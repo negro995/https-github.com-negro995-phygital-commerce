@@ -1,0 +1,39 @@
+{
+  "name": "phygital-commerce",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Web3 + AI hybrid commerce platform: storefront, admin, digital-twin NFTs, AI concierge and hybrid payments.",
+  "workspaces": [
+    "packages/shared",
+    "packages/db",
+    "packages/web3",
+    "packages/contracts",
+    "apps/api",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @phygital/api & npm run dev --workspace @phygital/web",
+    "dev:api": "npm run dev --workspace @phygital/api",
+    "dev:web": "npm run dev --workspace @phygital/web",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint . && npm run lint --workspace @phygital/web",
+    "db:up": "docker compose up -d postgres",
+    "db:generate": "npm run generate --workspace @phygital/db",
+    "db:migrate": "npm run migrate --workspace @phygital/db",
+    "db:seed": "npm run seed --workspace @phygital/db",
+    "chain:node": "npm run node --workspace @phygital/contracts",
+    "chain:deploy:local": "npm run deploy:local --workspace @phygital/contracts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.40.0",
+    "vitest": "^3.2.4"
+  }
+}

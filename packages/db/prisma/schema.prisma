@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum WalletProvider {
+  PRIVY
+  EXTERNAL
+  DEV
+}
+
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+}
+
+enum SalesChannel {
+  WEB
+  IN_STORE
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  FULFILLED
+  CANCELLED
+  PAYMENT_FAILED
+}
+
+enum PaymentMethod {
+  stripe
+  mercadopago
+  crypto
+  mock
+  pos
+}
+
+enum MintStatus {
+  PENDING
+  SUBMITTED
+  CONFIRMED
+  FAILED
+  SKIPPED
+}
+
+enum MintSource {
+  ORDER
+  PASSPORT_CLAIM
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String?
+  privyId        String?         @unique
+  walletAddress  String?         @unique
+  walletProvider WalletProvider?
+  role           Role            @default(CUSTOMER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  orders           Order[]
+  claimedPassports ProductPassport[] @relation("PassportClaimer")
+  checkIns         CheckIn[]
+  mints            NftMint[]
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  city      String?
+  createdAt DateTime @default(now())
+
+  orders    Order[]
+  passports ProductPassport[]
+  checkIns  CheckIn[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String      @default("")
+  type        ProductType
+  category    String      @default("general")
+  priceCents  Int
+  currency    String      @default("USD")
+  stock       Int         @default(0)
+  imageUrl    String?
+  /// ERC-1155 token id used for this product's Digital Twin.
+  tokenId     Int         @unique @default(autoincrement())
+  twinEnabled Boolean     @default(true)
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  orderItems OrderItem[]
+  passports  ProductPassport[]
+  mints      NftMint[]
+
+  @@index([active, type])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  userId         String?
+  storeId        String?
+  channel        SalesChannel  @default(WEB)
+  status         OrderStatus   @default(PENDING_PAYMENT)
+  paymentMethod  PaymentMethod
+  /// Provider reference: Stripe session id, Mercado Pago preference/payment id, crypto tx hash.
+  paymentRef     String?       @unique
+  subtotalCents  Int
+  discountBps    Int           @default(0)
+  discountCents  Int           @default(0)
+  totalCents     Int
+  currency       String        @default("USD")
+  loyaltyTier    String?
+  /// Wallet that receives the Digital Twin NFTs for this order.
+  walletAddress  String?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user      User?             @relation(fields: [userId], references: [id])
+  store     Store?            @relation(fields: [storeId], references: [id])
+  items     OrderItem[]
+  mints     NftMint[]
+  passports ProductPassport[]
+
+  @@index([userId, createdAt])
+  @@index([channel, status])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  productId      String
+  quantity       Int
+  unitPriceCents Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+/// A QR "digital passport" attached to a single physical unit.
+model ProductPassport {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  serial      String
+  productId   String
+  storeId     String?
+  orderId     String?
+  claimedById String?
+  claimedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id])
+  store     Store?   @relation(fields: [storeId], references: [id])
+  order     Order?   @relation(fields: [orderId], references: [id])
+  claimedBy User?    @relation("PassportClaimer", fields: [claimedById], references: [id])
+  mint      NftMint?
+  checkIns  CheckIn[]
+
+  @@index([productId])
+}
+
+/// Physical touchpoint (QR scan) — feeds the AI concierge and loyalty analytics.
+model CheckIn {
+  id         String   @id @default(cuid())
+  userId     String
+  storeId    String?
+  passportId String?
+  createdAt  DateTime @default(now())
+
+  user     User             @relation(fields: [userId], references: [id])
+  store    Store?           @relation(fields: [storeId], references: [id])
+  passport ProductPassport? @relation(fields: [passportId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+/// Durable mint job. Mints never block checkout: they are queued and retried with backoff.
+model NftMint {
+  id            String     @id @default(cuid())
+  /// Deterministic idempotency key, also enforced on-chain (keccak256(mintRef)).
+  mintRef       String     @unique
+  source        MintSource
+  status        MintStatus @default(PENDING)
+  userId        String
+  productId     String
+  orderId       String?
+  passportId    String?    @unique
+  walletAddress String?
+  tokenId       Int
+  txHash        String?
+  attempts      Int        @default(0)
+  lastError     String?
+  nextAttemptAt DateTime   @default(now())
+  confirmedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user     User             @relation(fields: [userId], references: [id])
+  product  Product          @relation(fields: [productId], references: [id])
+  order    Order?           @relation(fields: [orderId], references: [id])
+  passport ProductPassport? @relation(fields: [passportId], references: [id])
+
+  @@index([status, nextAttemptAt])
+  @@index([userId, status])
+}
+
+/// Processed webhook events, for idempotent webhook handling.
+model WebhookEvent {
+  id         String   @id
+  provider   String
+  type       String
+  receivedAt DateTime @default(now())
+}
