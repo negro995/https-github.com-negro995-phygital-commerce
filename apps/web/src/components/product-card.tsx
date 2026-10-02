@@ -27,10 +27,10 @@ export function ProductCard({ product, discountBps = 0 }: { product: Product; di
         <ProductImage src={product.imageUrl} alt={product.name} className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105" />
         <div className="absolute left-2 top-2 flex gap-1">
           <Badge className={product.type === "DIGITAL" ? "bg-fuchsia-600 text-white" : "bg-white/90 text-ink-800"}>
-            {product.type === "DIGITAL" ? "Digital" : "Physical"}
+            {product.type === "DIGITAL" ? "Digital" : "Físico"}
           </Badge>
         </div>
-        {soldOut && <div className="absolute inset-0 grid place-items-center bg-white/70 text-sm font-semibold text-ink-800">Sold out</div>}
+        {soldOut && <div className="absolute inset-0 grid place-items-center bg-white/70 text-sm font-semibold text-ink-800">Agotado</div>}
       </Link>
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         <Link href={`/products/${product.slug}`} className="line-clamp-2 text-sm font-semibold text-ink-900 hover:text-brand-700 sm:text-base">
@@ -38,7 +38,7 @@ export function ProductCard({ product, discountBps = 0 }: { product: Product; di
         </Link>
         {product.twinEnabled && (
           <p className="mt-1 flex items-center gap-1 text-xs text-brand-700">
-            <Fingerprint className="size-3.5" aria-hidden /> Includes Digital Twin
+            <Fingerprint className="size-3.5" aria-hidden /> Incluye Gemelo Digital
           </p>
         )}
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
@@ -53,7 +53,7 @@ export function ProductCard({ product, discountBps = 0 }: { product: Product; di
             )}
           </div>
           <Button
-            aria-label={`Add ${product.name} to cart`}
+            aria-label={`Agregar ${product.name} al carrito`}
             className="size-11 rounded-full p-0"
             disabled={soldOut}
             onClick={() => dispatch({ type: "add", product })}

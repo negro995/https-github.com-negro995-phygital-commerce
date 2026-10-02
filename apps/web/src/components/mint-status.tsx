@@ -3,11 +3,11 @@ import { CheckCircle2, Clock, ExternalLink, Loader2, XCircle } from "lucide-reac
 import { Badge } from "./ui";
 
 const LABELS: Record<MintStatus, { label: string; cls: string; icon: typeof Clock }> = {
-  PENDING: { label: "Queued", cls: "bg-ink-100 text-ink-700", icon: Clock },
-  SUBMITTED: { label: "Minting…", cls: "bg-sky-100 text-sky-800", icon: Loader2 },
-  CONFIRMED: { label: "Minted", cls: "bg-emerald-100 text-emerald-800", icon: CheckCircle2 },
-  FAILED: { label: "Needs attention", cls: "bg-red-100 text-red-800", icon: XCircle },
-  SKIPPED: { label: "Skipped", cls: "bg-ink-100 text-ink-500", icon: Clock },
+  PENDING: { label: "En cola", cls: "bg-ink-100 text-ink-700", icon: Clock },
+  SUBMITTED: { label: "Emitiendo…", cls: "bg-sky-100 text-sky-800", icon: Loader2 },
+  CONFIRMED: { label: "Emitido", cls: "bg-emerald-100 text-emerald-800", icon: CheckCircle2 },
+  FAILED: { label: "Requiere atención", cls: "bg-red-100 text-red-800", icon: XCircle },
+  SKIPPED: { label: "Omitido", cls: "bg-ink-100 text-ink-500", icon: Clock },
 };
 
 export function MintStatusBadge({ status, attempts = 0 }: { status: MintStatus; attempts?: number }) {
@@ -16,7 +16,7 @@ export function MintStatusBadge({ status, attempts = 0 }: { status: MintStatus; 
   return (
     <Badge className={retrying ? "bg-amber-100 text-amber-800" : cls}>
       <Icon className={status === "SUBMITTED" ? "size-3 animate-spin" : "size-3"} aria-hidden />
-      {retrying ? `Retrying (attempt ${attempts + 1})` : label}
+      {retrying ? `Reintentando (intento ${attempts + 1})` : label}
     </Badge>
   );
 }

@@ -13,31 +13,31 @@ export interface LoyaltyTier {
 export const LOYALTY_TIERS: readonly LoyaltyTier[] = [
   {
     id: "EXPLORER",
-    name: "Explorer",
+    name: "Explorador",
     minTwins: 0,
     discountBps: 0,
-    perks: ["Digital Twin NFT with every purchase", "AI concierge recommendations"],
+    perks: ["Un Gemelo Digital (NFT) con cada compra", "Recomendaciones del asistente IA"],
   },
   {
     id: "INSIDER",
-    name: "Insider",
+    name: "Socio",
     minTwins: 1,
     discountBps: 500,
-    perks: ["5% off every order", "Early access to drops"],
+    perks: ["5% de descuento en cada compra", "Acceso anticipado a lanzamientos"],
   },
   {
     id: "VIP",
     name: "VIP",
     minTwins: 5,
     discountBps: 1000,
-    perks: ["10% off every order", "Free shipping", "Members-only products"],
+    perks: ["10% de descuento en cada compra", "Envío gratis", "Productos exclusivos para miembros"],
   },
   {
     id: "LEGEND",
-    name: "Legend",
+    name: "Leyenda",
     minTwins: 15,
     discountBps: 1500,
-    perks: ["15% off every order", "Private in-store events", "Priority support"],
+    perks: ["15% de descuento en cada compra", "Eventos privados en el local", "Atención prioritaria"],
   },
 ] as const;
 

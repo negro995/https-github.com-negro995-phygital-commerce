@@ -14,10 +14,10 @@ export const hasInjectedWallet = () => Boolean(injectedProvider());
 
 /** Sends the ERC-20 transfer from the user's browser wallet and returns the tx hash. */
 export async function payWithInjectedWallet(req: CryptoPaymentRequest, provider: EIP1193Provider | undefined = injectedProvider()): Promise<Hash> {
-  if (!provider) throw new Error("No browser wallet found. Install a wallet or paste a transaction hash instead.");
+  if (!provider) throw new Error("No encontramos una wallet en el navegador. Instalá una o pegá el hash de la transacción.");
   const client = createWalletClient({ transport: custom(provider) });
   const [account] = await client.requestAddresses();
-  if (!account) throw new Error("No wallet account selected");
+  if (!account) throw new Error("No seleccionaste ninguna cuenta de la wallet");
 
   const currentChain = await client.getChainId();
   if (currentChain !== req.chainId) {
@@ -38,7 +38,7 @@ export async function payWithInjectedWallet(req: CryptoPaymentRequest, provider:
 /** Maps common wallet errors to friendly copy. */
 export function walletErrorMessage(err: unknown): string {
   const e = err as { code?: number; shortMessage?: string; message?: string };
-  if (e?.code === 4001 || /reject|denied/i.test(e?.message ?? "")) return "You cancelled the transaction in your wallet.";
-  if (e?.code === 4902) return "Your wallet doesn't know this network yet. Add it and try again.";
-  return e?.shortMessage ?? e?.message ?? "Wallet error";
+  if (e?.code === 4001 || /reject|denied/i.test(e?.message ?? "")) return "Cancelaste la transacción en tu wallet.";
+  if (e?.code === 4902) return "Tu wallet todavía no tiene esta red. Agregala y volvé a intentar.";
+  return e?.shortMessage ?? e?.message ?? "Error de la wallet";
 }

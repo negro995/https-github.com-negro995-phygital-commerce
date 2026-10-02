@@ -34,7 +34,7 @@ describe("api client", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const err = await api("/api/products").catch((e: unknown) => e);
     expect(err).toMatchObject({ code: "NETWORK", status: 0 });
-    expect(errorMessage(err)).toMatch(/can't reach the store/i);
+    expect(errorMessage(err)).toMatch(/no pudimos conectarnos con la tienda/i);
   });
 
   it("handles non-JSON error bodies", async () => {

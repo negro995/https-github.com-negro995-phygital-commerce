@@ -55,7 +55,7 @@ export function publicRoutes(deps: AppDeps) {
   app.get("/products/:slug", async (c) => {
     const slug = c.req.param("slug");
     const product = await deps.db.product.findFirst({ where: { active: true, OR: [{ slug }, { id: slug }] } });
-    if (!product) throw notFound("Product");
+    if (!product) throw notFound("el producto");
     return c.json({ product });
   });
 
@@ -65,9 +65,9 @@ export function publicRoutes(deps: AppDeps) {
   app.get("/twins/:file", async (c) => {
     const raw = c.req.param("file").replace(/\.json$/, "");
     const tokenId = /^[0-9a-f]{64}$/i.test(raw) ? Number.parseInt(raw, 16) : Number(raw);
-    if (!Number.isSafeInteger(tokenId)) throw notFound("Twin");
+    if (!Number.isSafeInteger(tokenId)) throw notFound("el gemelo");
     const product = await deps.db.product.findUnique({ where: { tokenId } });
-    if (!product) throw notFound("Twin");
+    if (!product) throw notFound("el gemelo");
     return c.json({
       name: `${product.name} — Digital Twin`,
       description: `Soulbound Digital Twin proving ownership of "${product.name}". ${product.description}`,

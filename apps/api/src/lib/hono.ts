@@ -13,11 +13,11 @@ export async function parseJson<T extends z.ZodType>(c: Context, schema: T): Pro
   try {
     body = await c.req.json();
   } catch {
-    throw new AppError("BAD_REQUEST", "Request body must be valid JSON");
+    throw new AppError("BAD_REQUEST", "El cuerpo de la solicitud debe ser JSON válido");
   }
   const result = schema.safeParse(body);
   if (!result.success) {
-    throw new AppError("BAD_REQUEST", "Validation failed", result.error.issues);
+    throw new AppError("BAD_REQUEST", "Revisá los datos ingresados", result.error.issues);
   }
   return result.data;
 }
@@ -32,12 +32,12 @@ export const authMiddleware = (deps: AppDeps) =>
 
 export function requireUser(c: Context<AppEnv>): User {
   const user = c.get("user");
-  if (!user) throw new AppError("UNAUTHORIZED", "Sign in required");
+  if (!user) throw new AppError("UNAUTHORIZED", "Tenés que ingresar para continuar");
   return user;
 }
 
 export function requireAdmin(c: Context<AppEnv>): User {
   const user = requireUser(c);
-  if (user.role !== "ADMIN" && user.role !== "STAFF") throw new AppError("FORBIDDEN", "Store manager access required");
+  if (user.role !== "ADMIN" && user.role !== "STAFF") throw new AppError("FORBIDDEN", "Necesitás acceso de administrador del comercio");
   return user;
 }

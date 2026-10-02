@@ -68,7 +68,7 @@ export function Notice({
   );
 }
 
-export function Spinner({ label = "Loading…" }: { label?: string }) {
+export function Spinner({ label = "Cargando…" }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-2 py-10 text-sm text-ink-500" role="status">
       <Loader2 className="size-5 animate-spin" aria-hidden />

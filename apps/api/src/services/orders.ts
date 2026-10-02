@@ -28,10 +28,10 @@ export async function createCheckout(
   for (const item of input.items) quantities.set(item.productId, (quantities.get(item.productId) ?? 0) + item.quantity);
 
   const products = await db.product.findMany({ where: { id: { in: [...quantities.keys()] }, active: true } });
-  if (products.length !== quantities.size) throw new AppError("BAD_REQUEST", "One or more products are unavailable");
+  if (products.length !== quantities.size) throw new AppError("BAD_REQUEST", "Uno o más productos no están disponibles");
   for (const p of products) {
     if (p.stock < quantities.get(p.id)!) {
-      throw new AppError("OUT_OF_STOCK", `Only ${p.stock} left of "${p.name}"`, { productId: p.id, stock: p.stock });
+      throw new AppError("OUT_OF_STOCK", `Quedan solo ${p.stock} de "${p.name}"`, { productId: p.id, stock: p.stock });
     }
   }
 
@@ -79,7 +79,7 @@ export async function createCheckout(
   } catch (err) {
     deps.logger.error("Payment session creation failed", { orderId: order.id, method: input.paymentMethod, error: errorMessage(err) });
     await db.order.update({ where: { id: order.id }, data: { status: "PAYMENT_FAILED" } });
-    throw new AppError("PAYMENT_PROVIDER_UNAVAILABLE", "The payment provider is unavailable. Please try another method.");
+    throw new AppError("PAYMENT_PROVIDER_UNAVAILABLE", "El medio de pago no está disponible. Probá con otro.");
   }
   if (session.ref) await db.order.update({ where: { id: order.id }, data: { paymentRef: session.ref } });
 

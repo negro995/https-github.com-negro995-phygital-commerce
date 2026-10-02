@@ -13,7 +13,7 @@ import { useApi } from "@/lib/use-api";
 function QrToggle({ code, serial }: { code: string; serial: string }) {
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  if (svg) return <QrSvg svg={svg} label={`QR passport ${serial}`} className="size-28 bg-white" />;
+  if (svg) return <QrSvg svg={svg} label={`Pasaporte QR ${serial}`} className="size-28 bg-white" />;
   return (
     <div>
       <Button
@@ -64,13 +64,13 @@ export default function PassportsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="no-print text-2xl font-bold">QR digital passports</h1>
+      <h1 className="no-print text-2xl font-bold">Pasaportes digitales QR</h1>
       <Card className="no-print">
         <p className="mb-3 text-sm text-ink-600">
-          Generate tamper-proof QR tags for physical stock. Customers scan them to verify authenticity and claim a soulbound Digital Twin.
+          Generá etiquetas QR a prueba de falsificaciones para tu stock físico. Los clientes las escanean para verificar la autenticidad y reclamar un Gemelo Digital intransferible.
         </p>
         <div className="grid gap-3 sm:grid-cols-[2fr_1.5fr_1fr_auto] sm:items-end">
-          <Field label="Product">
+          <Field label="Producto">
             <select className={inputCls} value={selectedProduct} onChange={(e) => setProductId(e.target.value)}>
               {physical.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -79,9 +79,9 @@ export default function PassportsPage() {
               ))}
             </select>
           </Field>
-          <Field label="Store">
+          <Field label="Local">
             <select className={inputCls} value={storeId} onChange={(e) => setStoreId(e.target.value)}>
-              <option value="">Any / warehouse</option>
+              <option value="">Cualquiera / depósito</option>
               {stores.data?.stores.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -89,11 +89,11 @@ export default function PassportsPage() {
               ))}
             </select>
           </Field>
-          <Field label="Quantity">
+          <Field label="Cantidad">
             <input className={inputCls} type="number" min={1} max={200} value={quantity} onChange={(e) => setQuantity(e.target.value)} />
           </Field>
           <Button loading={generating} disabled={!selectedProduct} onClick={() => void generate()}>
-            Generate
+            Generar
           </Button>
         </div>
         {error && <div className="mt-3"><Notice tone="error">{error}</Notice></div>}
@@ -102,18 +102,18 @@ export default function PassportsPage() {
       {batch && (
         <div className="space-y-3">
           <div className="no-print flex items-center gap-2">
-            <p className="text-sm font-semibold">{batch.length} new passports</p>
+            <p className="text-sm font-semibold">{batch.length} pasaportes nuevos</p>
             <Button variant="secondary" className="ml-auto" onClick={() => window.print()}>
-              <Printer className="size-4" aria-hidden /> Print
+              <Printer className="size-4" aria-hidden /> Imprimir
             </Button>
             <Button variant="ghost" onClick={() => setBatch(null)}>
-              Done
+              Listo
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {batch.map((p) => (
               <Card key={p.code} className="flex flex-col items-center text-center">
-                <QrSvg svg={p.qrSvg} label={`QR passport ${p.serial}`} className="size-32 bg-white" />
+                <QrSvg svg={p.qrSvg} label={`Pasaporte QR ${p.serial}`} className="size-32 bg-white" />
                 <p className="mt-2 font-mono text-xs">{p.serial}</p>
               </Card>
             ))}
@@ -122,12 +122,12 @@ export default function PassportsPage() {
       )}
 
       <Card className="no-print">
-        <h2 className="font-semibold">Issued passports</h2>
+        <h2 className="font-semibold">Pasaportes emitidos</h2>
         {list.error && <Notice tone="error">{list.error}</Notice>}
         {!list.data && !list.error ? (
           <Spinner />
         ) : list.data?.passports.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-500">No passports yet.</p>
+          <p className="mt-2 text-sm text-ink-500">Todavía no hay pasaportes.</p>
         ) : (
           <ul className="mt-2 divide-y divide-ink-100">
             {list.data?.passports.map((p) => (
@@ -142,7 +142,7 @@ export default function PassportsPage() {
                   </p>
                   <p className="text-xs text-ink-400">{dateTime(p.createdAt)}</p>
                 </div>
-                {p.claimedBy ? <Badge className="bg-emerald-100 text-emerald-800">Claimed · {p.claimedBy.email}</Badge> : <Badge>Unclaimed</Badge>}
+                {p.claimedBy ? <Badge className="bg-emerald-100 text-emerald-800">Reclamado · {p.claimedBy.email}</Badge> : <Badge>Sin reclamar</Badge>}
                 {p.mint && <MintStatusBadge status={p.mint.status} />}
                 <QrToggle code={p.code} serial={p.serial} />
               </li>

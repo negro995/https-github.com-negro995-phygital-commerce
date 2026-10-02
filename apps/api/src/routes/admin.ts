@@ -68,7 +68,7 @@ export function adminRoutes(deps: AppDeps) {
   app.patch("/products/:id", async (c) => {
     const input = await parseJson(c, productInputSchema.partial());
     const exists = await db.product.findUnique({ where: { id: c.req.param("id") } });
-    if (!exists) throw notFound("Product");
+    if (!exists) throw notFound("el producto");
     const product = await db.product.update({
       where: { id: exists.id },
       data: { ...input, ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl || null } : {}) },
@@ -116,7 +116,7 @@ export function adminRoutes(deps: AppDeps) {
 
   app.get("/passports/:code/qr.svg", async (c) => {
     const passport = await db.productPassport.findUnique({ where: { code: c.req.param("code") } });
-    if (!passport) throw notFound("Passport");
+    if (!passport) throw notFound("el pasaporte");
     c.header("content-type", "image/svg+xml");
     return c.body(await passportQrSvg(deps.config.WEB_URL, passport.code));
   });
@@ -139,7 +139,7 @@ export function adminRoutes(deps: AppDeps) {
 
   app.post("/mints/:id/retry", async (c) => {
     const exists = await db.nftMint.findUnique({ where: { id: c.req.param("id") } });
-    if (!exists) throw notFound("Mint");
+    if (!exists) throw notFound("la emisión");
     return c.json({ mint: await retryMint(deps, exists.id) });
   });
 

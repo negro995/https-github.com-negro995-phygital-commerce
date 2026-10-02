@@ -18,7 +18,7 @@ export function commerceRoutes(deps: AppDeps) {
         mints: { orderBy: { createdAt: "asc" } },
       },
     });
-    if (!order) throw notFound("Order");
+    if (!order) throw notFound("el pedido");
     return {
       id: order.id,
       status: order.status,
@@ -54,30 +54,30 @@ export function commerceRoutes(deps: AppDeps) {
   app.get("/orders/:id", async (c) => c.json({ order: await loadOrderView(c.req.param("id")) }));
 
   app.post("/orders/:id/mock-confirm", async (c) => {
-    if (!deps.payments.enabledMethods().includes("mock")) throw new AppError("FORBIDDEN", "Mock payments are disabled");
+    if (!deps.payments.enabledMethods().includes("mock")) throw new AppError("FORBIDDEN", "Los pagos de prueba están deshabilitados");
     const order = await deps.db.order.findUnique({ where: { id: c.req.param("id") } });
-    if (!order) throw notFound("Order");
-    if (order.paymentMethod !== "mock") throw new AppError("BAD_REQUEST", "Order is not a mock-payment order");
+    if (!order) throw notFound("el pedido");
+    if (order.paymentMethod !== "mock") throw new AppError("BAD_REQUEST", "Este pedido no es un pago de prueba");
     await markOrderPaid(deps, order.id, `mock_${order.id}`);
     return c.json({ order: await loadOrderView(order.id) });
   });
 
   app.post("/orders/:id/crypto-confirm", async (c) => {
     const { txHash } = await parseJson(c, cryptoConfirmSchema);
-    if (!deps.chain.verifyPayment) throw new AppError("PAYMENT_PROVIDER_UNAVAILABLE", "Crypto payments are not enabled");
+    if (!deps.chain.verifyPayment) throw new AppError("PAYMENT_PROVIDER_UNAVAILABLE", "Los pagos con cripto no están habilitados");
     const order = await deps.db.order.findUnique({ where: { id: c.req.param("id") } });
-    if (!order) throw notFound("Order");
-    if (order.paymentMethod !== "crypto") throw new AppError("BAD_REQUEST", "Order is not a crypto order");
+    if (!order) throw notFound("el pedido");
+    if (order.paymentMethod !== "crypto") throw new AppError("BAD_REQUEST", "Este pedido no se paga con cripto");
     if (order.status === "PAID" || order.status === "FULFILLED") return c.json({ status: "paid", order: await loadOrderView(order.id) });
 
     const reused = await deps.db.order.findFirst({ where: { paymentRef: txHash.toLowerCase(), NOT: { id: order.id } } });
-    if (reused) throw new AppError("CONFLICT", "This transaction was already used for another order");
+    if (reused) throw new AppError("CONFLICT", "Esta transacción ya se usó para otro pedido");
 
     let result;
     try {
       result = await deps.chain.verifyPayment({ txHash: txHash as `0x${string}`, minAmount: BigInt(order.totalCents) * 10_000n });
     } catch {
-      throw new AppError("WEB3_UNAVAILABLE", "Could not reach the blockchain to verify your payment. We'll keep checking — try again shortly.");
+      throw new AppError("WEB3_UNAVAILABLE", "No pudimos conectarnos con la blockchain para verificar tu pago. Lo seguimos revisando: probá de nuevo en un rato.");
     }
     if (!result.ok) {
       if (result.reason === "pending" || result.reason === "insufficient_confirmations") {

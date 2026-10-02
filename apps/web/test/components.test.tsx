@@ -27,10 +27,10 @@ const withCart = (ui: ReactNode) =>
 
 describe("MintStatusBadge", () => {
   it.each([
-    ["PENDING", 0, "Queued"],
-    ["SUBMITTED", 0, "Minting…"],
-    ["CONFIRMED", 0, "Minted"],
-    ["FAILED", 3, "Needs attention"],
+    ["PENDING", 0, "En cola"],
+    ["SUBMITTED", 0, "Emitiendo…"],
+    ["CONFIRMED", 0, "Emitido"],
+    ["FAILED", 3, "Requiere atención"],
   ] as const)("renders %s", (status, attempts, label) => {
     render(<MintStatusBadge status={status} attempts={attempts} />);
     expect(screen.getByText(label)).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("MintStatusBadge", () => {
 
   it("shows retry progress for pending jobs that already failed once", () => {
     render(<MintStatusBadge status="PENDING" attempts={2} />);
-    expect(screen.getByText("Retrying (attempt 3)")).toBeInTheDocument();
+    expect(screen.getByText("Reintentando (intento 3)")).toBeInTheDocument();
   });
 
   it("links transactions to the explorer when available", () => {
@@ -51,38 +51,38 @@ describe("MintStatusBadge", () => {
 describe("LoyaltyCard", () => {
   it("shows tier, discount and progress to the next tier", () => {
     render(<LoyaltyCard loyalty={loyalty(2)} />);
-    expect(screen.getByText("Loyalty tier").nextElementSibling).toHaveTextContent("Insider");
-    expect(screen.getByText("5% off auto-applied at checkout")).toBeInTheDocument();
-    expect(screen.getByText(/3 more to reach VIP/)).toBeInTheDocument();
+    expect(screen.getByText("Nivel de fidelidad").nextElementSibling).toHaveTextContent("Socio");
+    expect(screen.getByText("5% de descuento aplicado automáticamente al pagar")).toBeInTheDocument();
+    expect(screen.getByText(/Te faltan 3 para llegar a VIP/)).toBeInTheDocument();
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "40");
   });
 
   it("explains the database fallback when the chain is unavailable", () => {
     render(<LoyaltyCard loyalty={loyalty(0, { source: "database" })} />);
-    expect(screen.getByText(/chain temporarily unavailable/)).toBeInTheDocument();
-    expect(screen.getByText(/Earn your first Digital Twin/)).toBeInTheDocument();
+    expect(screen.getByText(/blockchain no disponible por el momento/)).toBeInTheDocument();
+    expect(screen.getByText(/Conseguí tu primer Gemelo Digital/)).toBeInTheDocument();
   });
 
   it("celebrates the top tier", () => {
     render(<LoyaltyCard loyalty={loyalty(20)} />);
-    expect(screen.getByText(/Top tier reached/)).toBeInTheDocument();
+    expect(screen.getByText(/Llegaste al nivel máximo/)).toBeInTheDocument();
   });
 });
 
 describe("ProductCard", () => {
   it("shows the member price and adds to cart", async () => {
     withCart(<ProductCard product={product()} discountBps={1_000} />);
-    expect(screen.getByText("$36.00")).toBeInTheDocument();
-    expect(screen.getByText("$40.00")).toBeInTheDocument();
-    expect(screen.getByText("Includes Digital Twin")).toBeInTheDocument();
+    expect(screen.getByText(/^US\$\s36,00$/)).toBeInTheDocument();
+    expect(screen.getByText(/^US\$\s40,00$/)).toBeInTheDocument();
+    expect(screen.getByText("Incluye Gemelo Digital")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Add Cold Brew Kit to cart" }));
+    await userEvent.click(screen.getByRole("button", { name: "Agregar Cold Brew Kit al carrito" }));
     expect(screen.getByTestId("cart")).toHaveTextContent("1:4000");
   });
 
   it("disables sold-out products", () => {
     withCart(<ProductCard product={product({ stock: 0 })} />);
-    expect(screen.getByText("Sold out")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /add cold brew kit/i })).toBeDisabled();
+    expect(screen.getByText("Agotado")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /agregar cold brew kit/i })).toBeDisabled();
   });
 });

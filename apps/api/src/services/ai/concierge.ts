@@ -95,6 +95,7 @@ export function buildSystemPrompt(catalog: Product[], ctx: CustomerContext): str
     "Every purchase or in-store QR scan mints a soulbound Digital Twin NFT that raises the customer's loyalty tier.",
     "Be warm, concise (max 90 words) and concrete. Only recommend products from the catalog below, in stock, using their exact id.",
     "Never invent discounts: the loyalty discount is applied automatically at checkout by the system.",
+    "Write reply and reasons in Rioplatense Spanish (Argentina, using \"vos\"), unless the customer clearly writes in another language.",
     "",
     "CUSTOMER PROFILE",
     tier
@@ -124,7 +125,7 @@ export function parseModelOutput(raw: string) {
   return conciergeResponseSchema.parse(JSON.parse(raw.slice(start, end + 1)));
 }
 
-const STOPWORDS = new Set(["the", "a", "an", "for", "and", "or", "to", "of", "me", "i", "my", "something", "want", "need", "looking", "show", "some"]);
+const STOPWORDS = new Set(["the", "a", "an", "for", "and", "or", "to", "of", "me", "i", "my", "something", "want", "need", "looking", "show", "some", "para", "con", "una", "uno", "unos", "algo", "que", "del", "los", "las", "quiero", "busco", "mostrame", "menos"]);
 
 /** Deterministic recommender used when no LLM is configured or the LLM fails. */
 export function fallbackRecommendations(message: string, catalog: Product[], ctx: CustomerContext) {
@@ -148,19 +149,19 @@ export function fallbackRecommendations(message: string, catalog: Product[], ctx
     productId: p.id,
     reason:
       keyword > 0
-        ? `Matches what you asked for (${p.category}).`
+        ? `Coincide con lo que pediste (${p.category}).`
         : affinity > 0
-          ? `You love ${p.category} — this pairs well with what you own.`
-          : `A customer favourite in ${p.category}.`,
+          ? `Te encanta ${p.category}: combina bien con lo que ya tenés.`
+          : `Uno de los favoritos de los clientes en ${p.category}.`,
   }));
 }
 
 function fallbackReply(ctx: CustomerContext, count: number): string {
   const tier = ctx.loyalty?.tier;
   const greeting = tier
-    ? `As a ${tier.name}-tier member you get ${tier.discountBps / 100}% off automatically.`
-    : "Sign in to earn a Digital Twin with every purchase and unlock member discounts.";
-  return count > 0 ? `Here are ${count} picks I think you'll like. ${greeting}` : `I couldn't find a match right now. ${greeting}`;
+    ? `Como miembro ${tier.name} tenés ${tier.discountBps / 100}% de descuento automático.`
+    : "Ingresá para ganar un Gemelo Digital con cada compra y desbloquear descuentos para miembros.";
+  return count > 0 ? `Te dejo ${count} recomendaciones que creo que te van a gustar. ${greeting}` : `No encontré nada que coincida por ahora. ${greeting}`;
 }
 
 export async function runConcierge(deps: AppDeps, request: ConciergeRequest, user: User | null): Promise<ConciergeResult> {

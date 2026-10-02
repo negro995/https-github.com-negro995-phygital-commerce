@@ -17,6 +17,8 @@ export interface CryptoPayProps {
   onPaid: () => void;
 }
 
+const TX_HASH_RE = /^0x[a-fA-F0-9]{64}$/;
+
 type Phase = { kind: "idle" } | { kind: "wallet" } | { kind: "verifying"; txHash: string } | { kind: "pending"; txHash: string; message: string } | { kind: "error"; message: string; txHash?: string };
 
 export function CryptoPay({ orderId, chainId, token, recipient, amount, onPaid }: CryptoPayProps) {
@@ -32,12 +34,12 @@ export function CryptoPay({ orderId, chainId, token, recipient, amount, onPaid }
         json: { txHash },
       });
       if (res.data.status === "paid") return onPaid();
-      setPhase({ kind: "pending", txHash, message: res.data.message ?? "Waiting for confirmations…" });
+      setPhase({ kind: "pending", txHash, message: res.data.message ?? "Esperando confirmaciones…" });
       if (attempt < 40) {
         await new Promise((r) => setTimeout(r, 4_000));
         return verify(txHash, attempt + 1);
       }
-      setPhase({ kind: "error", txHash, message: "Still not confirmed. Your payment is safe — check again in a few minutes." });
+      setPhase({ kind: "error", txHash, message: "Todavía no está confirmado. Tu pago está seguro: volvé a verificar en unos minutos." });
     } catch (err) {
       setPhase({ kind: "error", txHash, message: errorMessage(err) });
     }
@@ -53,6 +55,8 @@ export function CryptoPay({ orderId, chainId, token, recipient, amount, onPaid }
     }
   };
 
+  const hashValid = TX_HASH_RE.test(manualHash.trim());
+  const hashInvalid = manualHash.trim() !== "" && !hashValid;
   const busy = phase.kind === "wallet" || phase.kind === "verifying" || phase.kind === "pending";
 
   return (
@@ -60,9 +64,9 @@ export function CryptoPay({ orderId, chainId, token, recipient, amount, onPaid }
       <div className="rounded-xl bg-ink-50 p-4 text-sm">
         <p className="text-2xl font-bold text-ink-900">{display} USDC</p>
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-ink-600">
-          <dt>Network</dt>
+          <dt>Red</dt>
           <dd>Chain ID {chainId}</dd>
-          <dt>Send to</dt>
+          <dt>Enviar a</dt>
           <dd className="break-all font-mono">{recipient}</dd>
           <dt>Token</dt>
           <dd className="font-mono">{shortAddress(token)}</dd>
@@ -70,20 +74,20 @@ export function CryptoPay({ orderId, chainId, token, recipient, amount, onPaid }
       </div>
 
       <Button className="w-full" onClick={() => void payWithWallet()} loading={phase.kind === "wallet"} disabled={busy || !hasInjectedWallet()}>
-        <Wallet className="size-4" aria-hidden /> {hasInjectedWallet() ? "Pay with browser wallet" : "No browser wallet detected"}
+        <Wallet className="size-4" aria-hidden /> {hasInjectedWallet() ? "Pagar con la wallet del navegador" : "No detectamos una wallet en el navegador"}
       </Button>
 
-      {phase.kind === "wallet" && <Notice>Confirm the transfer in your wallet…</Notice>}
-      {phase.kind === "verifying" && <Notice>Verifying your transaction on-chain…</Notice>}
-      {phase.kind === "pending" && <Notice tone="warning" title="Transaction seen, waiting for confirmations">{phase.message}</Notice>}
+      {phase.kind === "wallet" && <Notice>Confirmá la transferencia en tu wallet…</Notice>}
+      {phase.kind === "verifying" && <Notice>Verificando tu transacción en blockchain…</Notice>}
+      {phase.kind === "pending" && <Notice tone="warning" title="Transacción detectada, esperando confirmaciones">{phase.message}</Notice>}
       {phase.kind === "error" && (
         <Notice
           tone="error"
-          title="Payment not confirmed yet"
+          title="El pago todavía no está confirmado"
           action={
             phase.txHash ? (
               <Button variant="secondary" onClick={() => void verify(phase.txHash!)}>
-                Check again
+                Verificar de nuevo
               </Button>
             ) : undefined
           }
@@ -99,11 +103,24 @@ export function CryptoPay({ orderId, chainId, token, recipient, amount, onPaid }
           void verify(manualHash.trim());
         }}
       >
-        <Field label="Already paid from another wallet?" hint="Paste the transaction hash and we'll verify it.">
-          <input className={`${inputCls} font-mono`} placeholder="0x…" value={manualHash} onChange={(e) => setManualHash(e.target.value)} pattern="^0x[a-fA-F0-9]{64}$" />
+        <Field label="¿Ya pagaste desde otra wallet?" hint="Pegá el hash de la transacción y lo verificamos.">
+          <input
+            className={`${inputCls} font-mono`}
+            placeholder="0x…"
+            value={manualHash}
+            onChange={(e) => setManualHash(e.target.value)}
+            pattern="^0x[a-fA-F0-9]{64}$"
+            aria-invalid={hashInvalid}
+            aria-describedby={hashInvalid ? "tx-hash-error" : undefined}
+          />
         </Field>
-        <Button type="submit" variant="secondary" className="w-full" disabled={busy || !/^0x[a-fA-F0-9]{64}$/.test(manualHash.trim())}>
-          Verify transaction
+        {hashInvalid && (
+          <p id="tx-hash-error" className="text-xs text-red-700">
+            El hash debe empezar con 0x y tener 64 caracteres hexadecimales (0-9, a-f).
+          </p>
+        )}
+        <Button type="submit" variant="secondary" className="w-full" disabled={busy || !hashValid}>
+          Verificar transacción
         </Button>
       </form>
     </div>
